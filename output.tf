@@ -21,4 +21,3 @@ output "public_instance_sg_id" {
 output "private_instance_sg_id" {
   value = aws_security_group.allow_private_instance_tls.id
 }
-
