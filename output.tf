@@ -11,7 +11,7 @@ output "private_subnet_id" {
 }
 
 output "private_subnet_2_id" {
-  value = aws_subnet.private-2.id
+  value = aws_subnet.private_2.id
 }
 
 output "public_instance_sg_id" {
