@@ -172,7 +172,7 @@ resource "aws_security_group" "allow_private_instance_tls" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/24"]
+    cidr_blocks = ["10.0.0.0/24", "10.0.3.0/24"]
   }
 
   ingress {
@@ -180,7 +180,7 @@ resource "aws_security_group" "allow_private_instance_tls" {
     from_port   = 1521
     to_port     = 1521
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/24"]
+    cidr_blocks = ["10.0.0.0/24", "10.0.3.0/24"]
   }
 
   ingress {
@@ -188,7 +188,7 @@ resource "aws_security_group" "allow_private_instance_tls" {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/24"]
+    cidr_blocks = ["10.0.0.0/24", "10.0.3.0/24"]
   }
 
   ingress {
@@ -196,7 +196,7 @@ resource "aws_security_group" "allow_private_instance_tls" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/24"]
+    cidr_blocks = ["10.0.0.0/24", "10.0.3.0/24"]
   }
 
   ingress {
@@ -204,7 +204,7 @@ resource "aws_security_group" "allow_private_instance_tls" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/24"]
+    cidr_blocks = ["10.0.0.0/24", "10.0.3.0/24"]
   }
 
   ingress {
@@ -212,7 +212,7 @@ resource "aws_security_group" "allow_private_instance_tls" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["10.0.0.0/24"]
+    cidr_blocks = ["10.0.0.0/24", "10.0.3.0/24"]
   }
 
   egress {
