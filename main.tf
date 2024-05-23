@@ -1,3 +1,5 @@
+### --- VPC ---
+
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 
@@ -5,6 +7,9 @@ resource "aws_vpc" "main" {
     Name = "${var.name_prefix}-vpc"
   }
 }
+
+
+### --- Subnets ---
 
 resource "aws_subnet" "public" {
   count = length(var.public_subnets)
@@ -30,6 +35,7 @@ resource "aws_subnet" "private" {
     Name = "${var.name_prefix}-${var.private_subnets[count.index].name}-private-subnet"
   }
 }
+
 
 ### --- Internat GateWay  ---
 
@@ -60,8 +66,6 @@ resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
-
-
 
 
 ### --- NAT GateWay  ---
