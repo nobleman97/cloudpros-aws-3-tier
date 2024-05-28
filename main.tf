@@ -3,6 +3,9 @@
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
   tags = {
     Name = "${var.name_prefix}-vpc"
   }
@@ -11,30 +14,30 @@ resource "aws_vpc" "main" {
 
 ### --- Subnets ---
 
-resource "aws_subnet" "public" {
-  count = length(var.public_subnets)
+# resource "aws_subnet" "public" {
+#   count = length(var.public_subnets)
 
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnets[count.index].cidr_block
-  availability_zone       = var.public_subnets[count.index].availability_zone
-  map_public_ip_on_launch = var.public_subnets[count.index].map_public_ip_on_launch
+#   vpc_id                  = aws_vpc.main.id
+#   cidr_block              = var.public_subnets[count.index].cidr_block
+#   availability_zone       = var.public_subnets[count.index].availability_zone
+#   map_public_ip_on_launch = var.public_subnets[count.index].map_public_ip_on_launch
 
-  tags = {
-    Name = "${var.name_prefix}-${var.public_subnets[count.index].name}-public-subnet"
-  }
-}
+#   tags = {
+#     Name = "${var.name_prefix}-${var.public_subnets[count.index].name}-public-subnet"
+#   }
+# }
 
-resource "aws_subnet" "private" {
-  count = length(var.private_subnets)
+# resource "aws_subnet" "private" {
+#   count = length(var.private_subnets)
 
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.private_subnets[count.index].cidr_block
-  availability_zone = var.private_subnets[count.index].availability_zone
+#   vpc_id            = aws_vpc.main.id
+#   cidr_block        = var.private_subnets[count.index].cidr_block
+#   availability_zone = var.private_subnets[count.index].availability_zone
 
-  tags = {
-    Name = "${var.name_prefix}-${var.private_subnets[count.index].name}-private-subnet"
-  }
-}
+#   tags = {
+#     Name = "${var.name_prefix}-${var.private_subnets[count.index].name}-private-subnet"
+#   }
+# }
 
 
 ### --- Internat GateWay  ---
@@ -60,12 +63,12 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_route_table_association" "public" {
-  count = length(var.public_subnets)
+# resource "aws_route_table_association" "public" {
+#   count = length(var.public_subnets)
 
-  subnet_id      = aws_subnet.public[count.index].id
-  route_table_id = aws_route_table.public.id
-}
+#   subnet_id      = aws_subnet.public[count.index].id
+#   route_table_id = aws_route_table.public.id
+# }
 
 
 ### --- NAT GateWay  ---
@@ -82,13 +85,12 @@ resource "aws_nat_gateway" "main" {
   count = var.enable_private_subnets ? 1 : 0
 
   allocation_id = aws_eip.nat_gw_ip[0].id
-  subnet_id     = aws_subnet.public[0].id
+  subnet_id     = aws_subnet.this["first"].id  #Should be a public subnet
 
   tags = {
     Name = "${var.name_prefix}-nat_gw"
   }
 }
-
 
 resource "aws_route_table" "private" {
   count  = var.enable_private_subnets ? 1 : 0
@@ -104,9 +106,43 @@ resource "aws_route_table" "private" {
   }
 }
 
-resource "aws_route_table_association" "private" {
-  count = var.enable_private_subnets ? length(var.private_subnets) : 0
+# resource "aws_route_table_association" "private" {
+#   count = var.enable_private_subnets ? length(var.private_subnets) : 0
 
-  subnet_id      = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.private[count.index].id
+#   subnet_id      = aws_subnet.private[count.index].id
+#   route_table_id = aws_route_table.private[count.index].id
+# }
+
+
+# --- Universal Subnet --- #
+
+resource "aws_subnet" "this" {
+  for_each = var.dynamic_subnets
+
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = each.value.cidr_block
+  availability_zone       = each.value.availability_zone
+  map_public_ip_on_launch = each.value.map_public_ip_on_launch
+
+  tags = {
+    Name = ""
+  }
 }
+
+resource "aws_route_table_association" "public_2" {
+  for_each = local.public_subnets
+
+  subnet_id      = each.value
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "private_2" {
+  for_each = local.private_subnets
+
+  subnet_id      = each.value
+  route_table_id = aws_route_table.private[0].id
+}
+
+
+
+
