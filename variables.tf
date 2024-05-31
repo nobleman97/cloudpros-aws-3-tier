@@ -7,7 +7,7 @@ variable "name_prefix" {
 }
 
 ####################################
-# VPC
+#  VPC
 ####################################
 
 variable "vpc_cidr" {
@@ -39,66 +39,68 @@ variable "enable_dns_hostnames" {
 #  Subnets
 #####################################
 
-variable "public_subnets" {
-  description = "A list of public subnet objects"
-  type = list(object({
-    name                    = string
-    cidr_block              = string
-    availability_zone       = string
-    map_public_ip_on_launch = bool
-  }))
-
-  default = [{
-    name                    = "public_1"
-    cidr_block              = "10.0.1.0/24"
-    availability_zone       = "us-east-1a"
-    map_public_ip_on_launch = true
-  }]
-}
-
-variable "private_subnets" {
-  description = "A list of private subnet objects"
-  type = list(object({
-    name              = string
-    cidr_block        = string
-    availability_zone = string
-  }))
-
-  default = [{
-    name              = "private_1"
-    cidr_block        = "10.0.100.0/24"
-    availability_zone = "us-east-1a"
-  }]
-}
-
-
-variable "enable_private_subnets" {
-  description = "Flag to enable or disable private subnets"
+variable "enable_internet_gateway" {
+  description = "Toggle creation of Internet Gateway"
   type        = bool
   default     = false
 }
 
 
-variable "dynamic_subnets" {
+variable "subnets" {
   description = "A variable holding all subnets"
   type = map(object({
     cidr_block              = string
     availability_zone       = string
-    map_public_ip_on_launch = bool
+    map_public_ip_on_launch = optional(bool, false)
+    is_private              = optional(bool, true)
+    enable_nat              = optional(bool, false)
+    routes = optional(list(object({
+      # route_table_id              = string
+      name                        = string
+      destination_cidr_block      = optional(string, null)
+      destination_ipv6_cidr_block = optional(string, null)
+      destination_prefix_list_id  = optional(string, null)
+      carrier_gateway_id          = optional(string, null)
+      core_network_arn            = optional(string, null)
+      egress_only_gateway_id      = optional(string, null)
+      gateway_id                  = optional(string, null)
+      nat_gateway_id              = optional(string, null)
+      local_gateway_id            = optional(string, null)
+      network_interface_id        = optional(string, null)
+      transit_gateway_id          = optional(string, null)
+      vpc_endpoint_id             = optional(string, null)
+      vpc_peering_connection_id   = optional(string, null)
+    })), [])
+
   }))
 
   default = {
     "first" = {
-      cidr_block              = "10.0.200.0/24"
-      availability_zone       = "us-east-1a"
+      cidr_block        = "10.0.200.0/24"
+      availability_zone = "us-east-1a"
+      routes = [{
+        name                   = "test_1"
+        destination_cidr_block = "0.0.0.0/0"
+        gateway_id             = "casamigos"
+
+        },
+        {
+          name                   = "test_2"
+          destination_cidr_block = "0.0.0.0/0"
+          core_network_arn       = "casamigos"
+
+        }
+      ]
       map_public_ip_on_launch = true
+      is_private              = false
     }
 
     "second" = {
       cidr_block              = "10.0.205.0/24"
       availability_zone       = "us-east-1a"
       map_public_ip_on_launch = false
+      is_private              = true
+      enable_nat              = true
     }
   }
 }
-

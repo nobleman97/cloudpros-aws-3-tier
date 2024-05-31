@@ -1,4 +1,6 @@
+#################################################
 ### --- VPC ---
+#################################################
 
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
@@ -12,112 +14,15 @@ resource "aws_vpc" "main" {
 }
 
 
-### --- Subnets ---
+#################################################
+# --- Subnets ---
+#################################################
 
-# resource "aws_subnet" "public" {
-#   count = length(var.public_subnets)
-
-#   vpc_id                  = aws_vpc.main.id
-#   cidr_block              = var.public_subnets[count.index].cidr_block
-#   availability_zone       = var.public_subnets[count.index].availability_zone
-#   map_public_ip_on_launch = var.public_subnets[count.index].map_public_ip_on_launch
-
-#   tags = {
-#     Name = "${var.name_prefix}-${var.public_subnets[count.index].name}-public-subnet"
-#   }
-# }
-
-# resource "aws_subnet" "private" {
-#   count = length(var.private_subnets)
-
-#   vpc_id            = aws_vpc.main.id
-#   cidr_block        = var.private_subnets[count.index].cidr_block
-#   availability_zone = var.private_subnets[count.index].availability_zone
-
-#   tags = {
-#     Name = "${var.name_prefix}-${var.private_subnets[count.index].name}-private-subnet"
-#   }
-# }
-
-
-### --- Internat GateWay  ---
-
-resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = "${var.name_prefix}-internet-gw"
+resource "aws_subnet" "public" {
+  for_each = {
+    for key, value in var.subnets :
+    key => value if value.is_private == false
   }
-}
-
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
-
-  tags = {
-    Name = "${var.name_prefix}-public-subnet-rt"
-  }
-}
-
-# resource "aws_route_table_association" "public" {
-#   count = length(var.public_subnets)
-
-#   subnet_id      = aws_subnet.public[count.index].id
-#   route_table_id = aws_route_table.public.id
-# }
-
-
-### --- NAT GateWay  ---
-
-resource "aws_eip" "nat_gw_ip" {
-  count = var.enable_private_subnets ? 1 : 0
-
-  tags = {
-    Name = "${var.name_prefix}-nat_gw_ip"
-  }
-}
-
-resource "aws_nat_gateway" "main" {
-  count = var.enable_private_subnets ? 1 : 0
-
-  allocation_id = aws_eip.nat_gw_ip[0].id
-  subnet_id     = aws_subnet.this["first"].id  #Should be a public subnet
-
-  tags = {
-    Name = "${var.name_prefix}-nat_gw"
-  }
-}
-
-resource "aws_route_table" "private" {
-  count  = var.enable_private_subnets ? 1 : 0
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.main[0].id
-  }
-
-  tags = {
-    Name = "${var.name_prefix}-secondary-rt"
-  }
-}
-
-# resource "aws_route_table_association" "private" {
-#   count = var.enable_private_subnets ? length(var.private_subnets) : 0
-
-#   subnet_id      = aws_subnet.private[count.index].id
-#   route_table_id = aws_route_table.private[count.index].id
-# }
-
-
-# --- Universal Subnet --- #
-
-resource "aws_subnet" "this" {
-  for_each = var.dynamic_subnets
 
   vpc_id                  = aws_vpc.main.id
   cidr_block              = each.value.cidr_block
@@ -125,23 +30,263 @@ resource "aws_subnet" "this" {
   map_public_ip_on_launch = each.value.map_public_ip_on_launch
 
   tags = {
-    Name = ""
+    Name = each.key
   }
 }
 
-resource "aws_route_table_association" "public_2" {
-  for_each = local.public_subnets
+resource "aws_subnet" "private" {
+  for_each = {
+    for key, value in var.subnets :
+    key => value if value.is_private == true
+  }
 
-  subnet_id      = each.value
-  route_table_id = aws_route_table.public.id
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = each.value.cidr_block
+  availability_zone       = each.value.availability_zone
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = each.key
+  }
 }
 
-resource "aws_route_table_association" "private_2" {
-  for_each = local.private_subnets
+###################################################
+### --- Internat GateWay  ---
+###################################################
 
-  subnet_id      = each.value
-  route_table_id = aws_route_table.private[0].id
+resource "aws_internet_gateway" "main" {
+  count = var.enable_internet_gateway ? 1 : 0
+
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.name_prefix}-internet-gw"
+  }
 }
+
+resource "aws_route_table" "this" {
+  for_each = {
+    for key, value in var.subnets :
+    key => value if length(value.routes) != 0
+  }
+
+  vpc_id = aws_vpc.main.id
+
+
+  tags = {
+    Name = "${var.name_prefix}-public-subnet-rt"
+  }
+}
+
+###############################################
+# Routes
+###############################################
+
+resource "aws_route" "gateway_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.gateway_id != null
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  gateway_id = aws_internet_gateway.main[0].id
+}
+
+resource "aws_route" "carrier_gateway_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.carrier_gateway_id != null
+
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  carrier_gateway_id = each.value.carrier_gateway_id
+}
+
+resource "aws_route" "core_network_arn" {
+  for_each = {
+    for route in local.routes : route.name => route if route.core_network_arn != null
+
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  core_network_arn = each.value.core_network_arn
+}
+
+resource "aws_route" "egress_only_gateway_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.egress_only_gateway_id != null
+
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  egress_only_gateway_id = each.value.egress_only_gateway_id
+}
+
+resource "aws_route" "nat_gateway_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.nat_gateway_id != null
+
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  nat_gateway_id = each.value.nat_gateway_id
+}
+
+resource "aws_route" "local_gateway_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.local_gateway_id != null
+
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  local_gateway_id = each.value.local_gateway_id
+}
+
+resource "aws_route" "network_interface_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.network_interface_id != null
+
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  network_interface_id = each.value.network_interface_id
+}
+
+resource "aws_route" "transit_gateway_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.transit_gateway_id != null
+
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  transit_gateway_id = each.value.transit_gateway_id
+}
+
+resource "aws_route" "vpc_endpoint_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.vpc_endpoint_id != null
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  vpc_endpoint_id = each.value.vpc_endpoint_id
+}
+
+resource "aws_route" "vpc_peering_connection_id" {
+  for_each = {
+    for route in local.routes : route.name => route if route.vpc_peering_connection_id != null
+
+  }
+
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+  vpc_peering_connection_id = each.value.vpc_peering_connection_id
+}
+
+# resource "aws_route" "destination_prefix_list_id" {
+#   for_each = {
+#     for route in local.routes : route.name => route if route.destination_prefix_list_id != null
+
+#   }
+
+#   route_table_id         = aws_route_table.this[each.value.subnet].id
+#   destination_cidr_block = each.value.destination_cidr_block
+#   destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+
+#   # destination_prefix_list_id  = each.value.destination_prefix_list_id
+# }
+
+##############################################
+# Associations
+##############################################
+
+resource "aws_route_table_association" "private" {
+  for_each = {
+    for key, subnet in var.subnets:
+      key => subnet
+      if subnet.is_private == true && length(subnet.routes) != 0
+  }
+
+  subnet_id      = aws_subnet.private[each.key].id
+  route_table_id = aws_route_table.this[each.key].id
+}
+
+resource "aws_route_table_association" "public" {
+  for_each = {
+    for key, subnet in var.subnets:
+      key => subnet
+      if subnet.is_private == false && length(subnet.routes) != 0
+  }
+
+
+  subnet_id      = aws_subnet.public[each.key].id
+  route_table_id = aws_route_table.this[each.key].id
+}
+
+
+##################################################
+### NAT GateWay  
+##################################################
+
+resource "aws_eip" "this" {
+  for_each = {
+    for key, subnet in var.subnets:
+      key => subnet
+      if subnet.is_private == true && subnet.enable_nat == true
+  }
+
+  tags = {
+    Name = "${var.name_prefix}-nat_gw_ip"
+  }
+}
+
+resource "aws_nat_gateway" "main" {
+  for_each = {
+    for key, subnet in var.subnets:
+      key => subnet
+      if subnet.is_private == true && subnet.enable_nat == true
+  }
+
+  allocation_id = aws_eip.this[each.key].id
+  subnet_id     = aws_subnet.public["first"].id #Should be a public subnet
+
+  tags = {
+    Name = "${var.name_prefix}-nat_gw"
+  }
+}
+
+
+
+
+
+
 
 
 
