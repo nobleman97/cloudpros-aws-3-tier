@@ -78,10 +78,11 @@ variable "subnets" {
     "first" = {
       cidr_block        = "10.0.200.0/24"
       availability_zone = "us-east-1a"
-      routes = [{
-        name                   = "test_1"
-        destination_cidr_block = "0.0.0.0/0"
-        gateway_id             = "casamigos"
+      routes = [
+        {
+          name                   = "test_1"
+          destination_cidr_block = "0.0.0.0/0"
+          gateway_id             = "casamigos"
 
         },
         {
@@ -101,6 +102,13 @@ variable "subnets" {
       map_public_ip_on_launch = false
       is_private              = true
       enable_nat              = true
+      routes = [
+        {
+          name                   = "test_3"
+          destination_cidr_block = "0.0.0.0/0"
+          nat_gateway_id  = "casamigos"
+        }
+      ]
     }
   }
 }

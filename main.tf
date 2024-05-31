@@ -135,15 +135,16 @@ resource "aws_route" "egress_only_gateway_id" {
 
 resource "aws_route" "nat_gateway_id" {
   for_each = {
-    for route in local.routes : route.name => route if route.nat_gateway_id != null
-
+    for key, subnet in var.subnets:
+      key => subnet
+      if subnet.is_private == true && subnet.enable_nat == true
   }
 
-  route_table_id              = aws_route_table.this[each.value.subnet].id
-  destination_cidr_block      = each.value.destination_cidr_block
-  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
+  route_table_id              = aws_route_table.this[each.key].id
+  destination_cidr_block      = each.value.routes[0].destination_cidr_block        # Will work only when we have one route 
+  destination_ipv6_cidr_block = each.value.routes[0].destination_ipv6_cidr_block   # Will work only when we have one route 
 
-  nat_gateway_id = each.value.nat_gateway_id
+  nat_gateway_id = aws_nat_gateway.this[each.key].id
 }
 
 resource "aws_route" "local_gateway_id" {
@@ -210,19 +211,6 @@ resource "aws_route" "vpc_peering_connection_id" {
   vpc_peering_connection_id = each.value.vpc_peering_connection_id
 }
 
-# resource "aws_route" "destination_prefix_list_id" {
-#   for_each = {
-#     for route in local.routes : route.name => route if route.destination_prefix_list_id != null
-
-#   }
-
-#   route_table_id         = aws_route_table.this[each.value.subnet].id
-#   destination_cidr_block = each.value.destination_cidr_block
-#   destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
-
-#   # destination_prefix_list_id  = each.value.destination_prefix_list_id
-# }
-
 ##############################################
 # Associations
 ##############################################
@@ -250,7 +238,6 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.this[each.key].id
 }
 
-
 ##################################################
 ### NAT GateWay  
 ##################################################
@@ -267,7 +254,7 @@ resource "aws_eip" "this" {
   }
 }
 
-resource "aws_nat_gateway" "main" {
+resource "aws_nat_gateway" "this" {
   for_each = {
     for key, subnet in var.subnets:
       key => subnet
@@ -275,7 +262,7 @@ resource "aws_nat_gateway" "main" {
   }
 
   allocation_id = aws_eip.this[each.key].id
-  subnet_id     = aws_subnet.public["first"].id #Should be a public subnet
+  subnet_id     = aws_subnet.public["first"].id                # Should be a public subnet
 
   tags = {
     Name = "${var.name_prefix}-nat_gw"
