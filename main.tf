@@ -133,24 +133,36 @@ resource "aws_route" "egress_only_gateway_id" {
   egress_only_gateway_id = each.value.egress_only_gateway_id
 }
 
-resource "aws_route" "nat_gateway_id" {
+# resource "aws_route" "nat_gateway_ref" {
+#   for_each = {
+#     for key, subnet in var.subnets:
+#       key => subnet
+#       if subnet.is_private == true && subnet.enable_nat == true
+#   }
+
+#   route_table_id              = aws_route_table.this[each.key].id
+#   destination_cidr_block      = each.value.routes[0].destination_cidr_block        # Will work only when we have one route 
+#   destination_ipv6_cidr_block = each.value.routes[0].destination_ipv6_cidr_block   # Will work only when we have one route 
+
+#   nat_gateway_ref = aws_nat_gateway.this[each.key].id
+# }
+
+resource "aws_route" "nat_gateway_ref" {
   for_each = {
-    for key, subnet in var.subnets:
-      key => subnet
-      if subnet.is_private == true && subnet.enable_nat == true
+    for route in local.routes : route.name => route if route.nat_gateway_ref != null
   }
 
-  route_table_id              = aws_route_table.this[each.key].id
-  destination_cidr_block      = each.value.routes[0].destination_cidr_block        # Will work only when we have one route 
-  destination_ipv6_cidr_block = each.value.routes[0].destination_ipv6_cidr_block   # Will work only when we have one route 
+  route_table_id              = aws_route_table.this[each.value.subnet].id
+  destination_cidr_block      = each.value.destination_cidr_block
+  destination_ipv6_cidr_block = each.value.destination_ipv6_cidr_block
 
-  nat_gateway_id = aws_nat_gateway.this[each.key].id
+  nat_gateway_id = aws_nat_gateway.this[each.value.nat_gateway_ref].id
 }
+
 
 resource "aws_route" "local_gateway_id" {
   for_each = {
     for route in local.routes : route.name => route if route.local_gateway_id != null
-
   }
 
   route_table_id              = aws_route_table.this[each.value.subnet].id

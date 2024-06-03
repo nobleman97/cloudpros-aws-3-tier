@@ -13,7 +13,7 @@ locals {
           core_network_arn            = route.core_network_arn
           egress_only_gateway_id      = route.egress_only_gateway_id
           gateway_id                  = route.gateway_id
-          nat_gateway_id              = route.nat_gateway_id
+          nat_gateway_ref             = route.nat_gateway_ref
           local_gateway_id            = route.local_gateway_id
           network_interface_id        = route.network_interface_id
           transit_gateway_id          = route.transit_gateway_id

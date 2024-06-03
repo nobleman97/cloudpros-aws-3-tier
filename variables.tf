@@ -64,7 +64,7 @@ variable "subnets" {
       core_network_arn            = optional(string, null)
       egress_only_gateway_id      = optional(string, null)
       gateway_id                  = optional(string, null)
-      nat_gateway_id              = optional(string, null)
+      nat_gateway_ref             = optional(string, null)
       local_gateway_id            = optional(string, null)
       network_interface_id        = optional(string, null)
       transit_gateway_id          = optional(string, null)
@@ -106,7 +106,7 @@ variable "subnets" {
         {
           name                   = "test_3"
           destination_cidr_block = "0.0.0.0/0"
-          nat_gateway_id  = "casamigos"
+          nat_gateway_ref  = "second"
         }
       ]
     }
