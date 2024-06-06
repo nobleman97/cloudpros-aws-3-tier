@@ -21,7 +21,6 @@ locals {
           vpc_peering_connection_id   = route.vpc_peering_connection_id
         }
       ]
-
     ]
   )
 }

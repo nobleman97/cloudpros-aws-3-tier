@@ -66,8 +66,8 @@ resource "aws_internet_gateway" "main" {
 
 resource "aws_route_table" "this" {
   for_each = {
-    for key, value in var.subnets :
-    key => value if length(value.routes) != 0
+    for key, subnet in var.subnets :
+    key => subnet if length(subnet.routes) != 0  #&& subnet.shared_route_table_ref == null
   }
 
   vpc_id = aws_vpc.main.id
@@ -133,19 +133,6 @@ resource "aws_route" "egress_only_gateway_id" {
   egress_only_gateway_id = each.value.egress_only_gateway_id
 }
 
-# resource "aws_route" "nat_gateway_ref" {
-#   for_each = {
-#     for key, subnet in var.subnets:
-#       key => subnet
-#       if subnet.is_private == true && subnet.enable_nat == true
-#   }
-
-#   route_table_id              = aws_route_table.this[each.key].id
-#   destination_cidr_block      = each.value.routes[0].destination_cidr_block        # Will work only when we have one route 
-#   destination_ipv6_cidr_block = each.value.routes[0].destination_ipv6_cidr_block   # Will work only when we have one route 
-
-#   nat_gateway_ref = aws_nat_gateway.this[each.key].id
-# }
 
 resource "aws_route" "nat_gateway_ref" {
   for_each = {
@@ -158,6 +145,8 @@ resource "aws_route" "nat_gateway_ref" {
 
   nat_gateway_id = aws_nat_gateway.this[each.value.nat_gateway_ref].id
 }
+
+
 
 
 resource "aws_route" "local_gateway_id" {
@@ -242,12 +231,22 @@ resource "aws_route_table_association" "public" {
   for_each = {
     for key, subnet in var.subnets:
       key => subnet
-      if subnet.is_private == false && length(subnet.routes) != 0
+      if subnet.is_private == false && length(subnet.routes) != 0 && subnet.shared_route_table_ref == null
   }
-
-
+ 
   subnet_id      = aws_subnet.public[each.key].id
   route_table_id = aws_route_table.this[each.key].id
+}
+
+resource "aws_route_table_association" "private_shared_nat" {  # Share NAT gateway
+  for_each = {
+    for key, subnet in var.subnets:
+      key => subnet
+      if subnet.is_private == true  != 0 && subnet.shared_route_table_ref != null
+  }
+ 
+  subnet_id      = aws_subnet.private[each.key].id
+  route_table_id = aws_route_table.this[each.value.shared_route_table_ref].id
 }
 
 ##################################################
@@ -274,14 +273,21 @@ resource "aws_nat_gateway" "this" {
   }
 
   allocation_id = aws_eip.this[each.key].id
-  subnet_id     = aws_subnet.public["first"].id                # Should be a public subnet
+  subnet_id     = aws_subnet.public[each.value.nat_public_subnet_key].id                # Should be a public subnet
 
   tags = {
     Name = "${var.name_prefix}-nat_gw"
   }
 }
 
+# Currently:
+# => Code accounts for when we want to map more than one  NAT to multiple subnets or a single subnet
 
+# Account for:
+# => When we do not want to create a separate NAT, but attach multiple private subnets to a
+# => pre-existing NAT.
+
+# ==>> Solution will be to associate Route Tables (RT Associations) based on certain conditions
 
 
 

@@ -54,6 +54,8 @@ variable "subnets" {
     map_public_ip_on_launch = optional(bool, false)
     is_private              = optional(bool, true)
     enable_nat              = optional(bool, false)
+    nat_public_subnet_key   = optional(string, null)
+    shared_route_table_ref  = optional(string, null)
     routes = optional(list(object({
       # route_table_id              = string
       name                        = string
@@ -84,31 +86,40 @@ variable "subnets" {
           destination_cidr_block = "0.0.0.0/0"
           gateway_id             = "casamigos"
 
-        },
-        {
-          name                   = "test_2"
-          destination_cidr_block = "0.0.0.0/0"
-          core_network_arn       = "casamigos"
-
         }
+        # {
+        #   name                   = "test_2"
+        #   destination_cidr_block = "0.0.0.0/0"
+        #   core_network_arn       = "casamigos"
+
+        # }
       ]
       map_public_ip_on_launch = true
       is_private              = false
     }
 
-    "second" = {
+    "second" = {      #  Docs
       cidr_block              = "10.0.205.0/24"
       availability_zone       = "us-east-1a"
       map_public_ip_on_launch = false
       is_private              = true
       enable_nat              = true
+      nat_public_subnet_key = "first"
       routes = [
         {
           name                   = "test_3"
           destination_cidr_block = "0.0.0.0/0"
-          nat_gateway_ref  = "second"
+          nat_gateway_ref  = "second"   # Document
         }
       ]
+    }
+
+    "third_subnet" = {      
+      cidr_block              = "10.0.206.0/24"
+      availability_zone       = "us-east-1a"  # Should in the same availability zone as the shared NAT
+      map_public_ip_on_launch = false
+      is_private              = true
+      shared_route_table_ref = "second"
     }
   }
 }
