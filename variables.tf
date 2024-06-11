@@ -34,6 +34,32 @@ variable "enable_dns_hostnames" {
   default     = true
 }
 
+####################################
+#  VPC Flow Log
+####################################
+
+variable "enable_flow_log" {
+  description = "Flag to enable or disable flow log"
+  type        = bool
+  default     = false
+}
+
+variable "log_destination_arn" {
+  description = "The arn for the log destination. e.g s3 bucket  arn"
+  type        = string
+}
+
+variable "log_destination_type" {
+  description = "Where to send the logs. Could be s3, kinesis-data-firehose, or cloud-watch-logs"
+  type        = string
+  default     = "s3"
+}
+
+variable "log_traffic_type" {
+  description = "The type of traffic to capture. Valid values: ACCEPT,REJECT, ALL."
+  type        = string
+  default     = "ALL"
+}
 
 #####################################
 #  Subnets
@@ -98,28 +124,28 @@ variable "subnets" {
       is_private              = false
     }
 
-    "second" = {      #  Docs
+    "second" = { #  Docs
       cidr_block              = "10.0.205.0/24"
       availability_zone       = "us-east-1a"
       map_public_ip_on_launch = false
       is_private              = true
       enable_nat              = true
-      nat_public_subnet_key = "first"
+      nat_public_subnet_key   = "first"
       routes = [
         {
           name                   = "test_3"
           destination_cidr_block = "0.0.0.0/0"
-          nat_gateway_ref  = "second"   # Document
+          nat_gateway_ref        = "second" # Document
         }
       ]
     }
 
-    "third_subnet" = {      
+    "third_subnet" = {
       cidr_block              = "10.0.206.0/24"
-      availability_zone       = "us-east-1a"  # Should in the same availability zone as the shared NAT
+      availability_zone       = "us-east-1a" # Should in the same availability zone as the shared NAT
       map_public_ip_on_launch = false
       is_private              = true
-      shared_route_table_ref = "second"
+      shared_route_table_ref  = "second"
     }
   }
 }

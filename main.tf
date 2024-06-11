@@ -1,16 +1,25 @@
 #################################################
 ### --- VPC ---
 #################################################
-
+#tfsec:ignore:aws-ec2-require-vpc-flow-logs-for-all-vpcs
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 
-  enable_dns_hostnames = true
-  enable_dns_support   = true
+  enable_dns_hostnames = var.enable_dns_hostnames
+  enable_dns_support   = var.enable_dns_support
 
   tags = {
     Name = "${var.name_prefix}-vpc"
   }
+}
+
+resource "aws_flow_log" "this" {
+  count = var.enable_flow_log ? 1 : 0
+
+  log_destination      = var.log_destination_arn
+  log_destination_type = var.log_destination_type
+  traffic_type         = var.log_traffic_type
+  vpc_id               = aws_vpc.main.id
 }
 
 
@@ -18,6 +27,7 @@ resource "aws_vpc" "main" {
 # --- Subnets ---
 #################################################
 
+#tfsec:ignore:aws-ec2-no-public-ip-subnet
 resource "aws_subnet" "public" {
   for_each = {
     for key, value in var.subnets :
@@ -67,7 +77,7 @@ resource "aws_internet_gateway" "main" {
 resource "aws_route_table" "this" {
   for_each = {
     for key, subnet in var.subnets :
-    key => subnet if length(subnet.routes) != 0  #&& subnet.shared_route_table_ref == null
+    key => subnet if length(subnet.routes) != 0 #&& subnet.shared_route_table_ref == null
   }
 
   vpc_id = aws_vpc.main.id
@@ -218,9 +228,9 @@ resource "aws_route" "vpc_peering_connection_id" {
 
 resource "aws_route_table_association" "private" {
   for_each = {
-    for key, subnet in var.subnets:
-      key => subnet
-      if subnet.is_private == true && length(subnet.routes) != 0
+    for key, subnet in var.subnets :
+    key => subnet
+    if subnet.is_private == true && length(subnet.routes) != 0
   }
 
   subnet_id      = aws_subnet.private[each.key].id
@@ -229,35 +239,35 @@ resource "aws_route_table_association" "private" {
 
 resource "aws_route_table_association" "public" {
   for_each = {
-    for key, subnet in var.subnets:
-      key => subnet
-      if subnet.is_private == false && length(subnet.routes) != 0 && subnet.shared_route_table_ref == null
+    for key, subnet in var.subnets :
+    key => subnet
+    if subnet.is_private == false && length(subnet.routes) != 0 && subnet.shared_route_table_ref == null
   }
- 
+
   subnet_id      = aws_subnet.public[each.key].id
   route_table_id = aws_route_table.this[each.key].id
 }
 
-resource "aws_route_table_association" "private_shared_nat" {  # Share NAT gateway
+resource "aws_route_table_association" "private_shared_nat" { # Share NAT gateway
   for_each = {
-    for key, subnet in var.subnets:
-      key => subnet
-      if subnet.is_private == true  != 0 && subnet.shared_route_table_ref != null
+    for key, subnet in var.subnets :
+    key => subnet
+    if subnet.is_private == true != 0 && subnet.shared_route_table_ref != null
   }
- 
+
   subnet_id      = aws_subnet.private[each.key].id
   route_table_id = aws_route_table.this[each.value.shared_route_table_ref].id
 }
 
 ##################################################
-### NAT GateWay  
+### NAT GateWay
 ##################################################
 
 resource "aws_eip" "this" {
   for_each = {
-    for key, subnet in var.subnets:
-      key => subnet
-      if subnet.is_private == true && subnet.enable_nat == true
+    for key, subnet in var.subnets :
+    key => subnet
+    if subnet.is_private == true && subnet.enable_nat == true
   }
 
   tags = {
@@ -267,13 +277,13 @@ resource "aws_eip" "this" {
 
 resource "aws_nat_gateway" "this" {
   for_each = {
-    for key, subnet in var.subnets:
-      key => subnet
-      if subnet.is_private == true && subnet.enable_nat == true
+    for key, subnet in var.subnets :
+    key => subnet
+    if subnet.is_private == true && subnet.enable_nat == true
   }
 
   allocation_id = aws_eip.this[each.key].id
-  subnet_id     = aws_subnet.public[each.value.nat_public_subnet_key].id                # Should be a public subnet
+  subnet_id     = aws_subnet.public[each.value.nat_public_subnet_key].id # Should be a public subnet
 
   tags = {
     Name = "${var.name_prefix}-nat_gw"
