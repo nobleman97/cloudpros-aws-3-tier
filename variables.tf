@@ -38,16 +38,22 @@ variable "enable_dns_hostnames" {
 #  VPC Flow Log
 ####################################
 
-variable "enable_flow_log" {
-  description = "Flag to enable or disable flow log"
-  type        = bool
-  default     = false
+# variable "enable_flow_log" {
+#   description = "Flag to enable or disable flow log"
+#   type        = bool
+#   default     = false
+# }
+
+variable "log_bucket_name" {
+  description = "Name of Bucket where you want to send logs"
+  type        = string
+
 }
 
-variable "log_destination_arn" {
-  description = "The arn for the log destination. e.g s3 bucket  arn"
-  type        = string
-}
+# variable "log_destination_arn" {
+#   description = "The arn for the log destination. e.g s3 bucket  arn"
+#   type        = string
+# }
 
 variable "log_destination_type" {
   description = "Where to send the logs. Could be s3, kinesis-data-firehose, or cloud-watch-logs"

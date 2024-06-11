@@ -1,7 +1,6 @@
 #################################################
 ### --- VPC ---
 #################################################
-#tfsec:ignore:aws-ec2-require-vpc-flow-logs-for-all-vpcs
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 
@@ -14,9 +13,9 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_flow_log" "this" {
-  count = var.enable_flow_log ? 1 : 0
+  # count = var.enable_flow_log ? 1 : 0
 
-  log_destination      = var.log_destination_arn
+  log_destination      = data.aws_s3_bucket.this
   log_destination_type = var.log_destination_type
   traffic_type         = var.log_traffic_type
   vpc_id               = aws_vpc.main.id

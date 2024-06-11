@@ -103,16 +103,16 @@ No modules.
 | [aws_subnet.private](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/subnet) | resource |
 | [aws_subnet.public](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/subnet) | resource |
 | [aws_vpc.main](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/vpc) | resource |
+| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/s3_bucket) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_log_destination_arn"></a> [log\_destination\_arn](#input\_log\_destination\_arn) | The arn for the log destination. e.g s3 bucket  arn | `string` | n/a | yes |
+| <a name="input_log_bucket_name"></a> [log\_bucket\_name](#input\_log\_bucket\_name) | Name of Bucket where you want to send logs | `string` | n/a | yes |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | The VPC name | `string` | n/a | yes |
 | <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | Enable DNS hostnames or not | `bool` | `true` | no |
 | <a name="input_enable_dns_support"></a> [enable\_dns\_support](#input\_enable\_dns\_support) | Enable DNS support or not | `bool` | `true` | no |
-| <a name="input_enable_flow_log"></a> [enable\_flow\_log](#input\_enable\_flow\_log) | Flag to enable or disable flow log | `bool` | `false` | no |
 | <a name="input_enable_internet_gateway"></a> [enable\_internet\_gateway](#input\_enable\_internet\_gateway) | Toggle creation of Internet Gateway | `bool` | `false` | no |
 | <a name="input_log_destination_type"></a> [log\_destination\_type](#input\_log\_destination\_type) | Where to send the logs. Could be s3, kinesis-data-firehose, or cloud-watch-logs | `string` | `"s3"` | no |
 | <a name="input_log_traffic_type"></a> [log\_traffic\_type](#input\_log\_traffic\_type) | The type of traffic to capture. Valid values: ACCEPT,REJECT, ALL. | `string` | `"ALL"` | no |
