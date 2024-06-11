@@ -2,15 +2,51 @@
 
 This module helps to automate the creation of a VPC and its associated resources (e.g Subnets, route tables and gateways).
 
-
-<!-- ![Architecture Diagram](./arch.drawio.svg) -->
-
 <p text-align=center>
 <img src=./arch.drawio.svg width=90% >
 </p>
 
 ## Usage Notes:
-When called, this module creates a **VPC**. You can choose to also create **public subnets** ( with an IGW and public route table), **private subnets** and NAT gateways. By default, when private subnets are created, they don't have NAT gateways. To add a NAT for a private subnet, set `enable_nat = true` in the *.tfvars file. Setting this will provision a NAT gateway, private route table and route for each private subnet where `enable_nat = true`, hence allowing the private subnets reach the internet.
+When called, this module creates a **VPC**. You can choose to also create **public subnets** ( with an IGW and public route table), **private subnets** and NAT gateways. By default, when private subnets are created, they don't have NAT gateways. To add a NAT for a private subnet, set `enable_nat = true` in the *.tfvars file. Setting this will provision a _NAT gateway_, _private route table_ and _route_ for each private subnet where `enable_nat = true`, hence allowing the private subnets reach the internet.
+
+> Important: In this scenario, ensure that the `nat_gateway_ref` matches the name of the subnet
+
+
+```sh
+...
+    "second" = {        # This...
+        cidr_block              = "10.0.205.0/24"
+        availability_zone       = "us-east-1a"
+        map_public_ip_on_launch = false
+        is_private              = true
+        enable_nat              = true
+        nat_public_subnet_key   = "first"
+        routes = [
+            {
+            name                   = "test_3"
+            destination_cidr_block = "0.0.0.0/0"
+            nat_gateway_ref        = "second"     # ...Should match this
+            }
+        ]
+    }
+...
+```
+
+We could also decide to attach a new private subnet to an existing NAT gateway. In that case, we would have to associate the subnet with the route table which points to the existing NAT.
+
+```sh
+...
+    "third_subnet" = {
+        cidr_block              = "10.0.206.0/24"
+        availability_zone       = "us-east-1a" # Should be in the same availability zone as the shared NAT
+        map_public_ip_on_launch = false
+        enable_nat              = false
+        is_private              = true
+        shared_route_table_ref  = "second" # This points to a route table that was created and associated with an existing NAT
+    }
+...
+```
+
 
 To add or remove subnets, simply add or remove objects from the `subnets` variables.
 

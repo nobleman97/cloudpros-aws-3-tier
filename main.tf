@@ -290,19 +290,3 @@ resource "aws_nat_gateway" "this" {
   }
 }
 
-# Currently:
-# => Code accounts for when we want to map more than one  NAT to multiple subnets or a single subnet
-
-# Account for:
-# => When we do not want to create a separate NAT, but attach multiple private subnets to a
-# => pre-existing NAT.
-
-# ==>> Solution will be to associate Route Tables (RT Associations) based on certain conditions
-
-
-
-
-
-
-
-

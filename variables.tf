@@ -124,7 +124,7 @@ variable "subnets" {
       is_private              = false
     }
 
-    "second" = { #  Docs
+    "second" = {
       cidr_block              = "10.0.205.0/24"
       availability_zone       = "us-east-1a"
       map_public_ip_on_launch = false
@@ -142,7 +142,7 @@ variable "subnets" {
 
     "third_subnet" = {
       cidr_block              = "10.0.206.0/24"
-      availability_zone       = "us-east-1a" # Should in the same availability zone as the shared NAT
+      availability_zone       = "us-east-1a" # Should be in the same availability zone as the shared NAT
       map_public_ip_on_launch = false
       is_private              = true
       shared_route_table_ref  = "second"
