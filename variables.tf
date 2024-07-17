@@ -1,5 +1,6 @@
 variable "bucket_name" {
-  type = string
+  type    = string
+  default = "demo"
 }
 
 variable "bucket_prefix" {
@@ -7,7 +8,6 @@ variable "bucket_prefix" {
   type        = string
   default     = null
 }
-
 
 variable "versioning" {
   description = "Map containing versioning configuration."
@@ -28,21 +28,21 @@ variable "object_lock_enabled" {
 }
 
 variable "force_destroy" {
-  type = bool
+  type    = bool
   default = false
 }
 
-variable "aws_s3_bucket_versioning" {
-  description = "Enabled or Disabled"
-  type = string
-  default = "Enabled"
-} 
+# variable "aws_s3_bucket_versioning" {
+#   description = "Enabled or Disabled"
+#   type        = string
+#   default     = "Enabled"
+# }
 
-variable "create_bucket" {
-  description = "Controls if S3 bucket should be created"
-  type        = bool
-  default     = true
-}
+# variable "create_bucket" {
+#   description = "Controls if S3 bucket should be created"
+#   type        = bool
+#   default     = true
+# }
 
 variable "acl" {
   description = "(Optional) The canned ACL to apply. Conflicts with `grant`"
@@ -248,4 +248,26 @@ variable "server_side_encryption_configuration" {
   default     = {}
 }
 
+variable "analytics_configuration" {
+  description = "Map containing bucket analytics configuration."
+  type        = any
+  default     = {}
+}
 
+variable "cors_rule" {
+  description = "List of maps containing rules for Cross-Origin Resource Sharing."
+  type        = any
+  default     = []
+}
+
+variable "logging" {
+  description = "Map containing access bucket logging configuration."
+  type        = any
+  default     = {}
+}
+
+variable "metric_configuration" {
+  description = "Map containing bucket metric configuration."
+  type        = any
+  default     = []
+}

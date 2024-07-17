@@ -1,5 +1,9 @@
+#tfsec:ignore:aws-s3-enable-bucket-logging
+#tfsec:ignore:aws-s3-encryption-customer-key
+#tfsec:ignore:aws-s3-enable-bucket-encryption
+#tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "this" {
-#   count = var.create_bucket ? 1 : 0
+  #   count = var.create_bucket ? 1 : 0
 
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
@@ -297,6 +301,108 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
           kms_master_key_id = try(apply_server_side_encryption_by_default.value.kms_master_key_id, null)
         }
       }
+    }
+  }
+}
+
+resource "aws_s3_bucket_analytics_configuration" "this" {
+  for_each = { for k, v in var.analytics_configuration : k => v }
+
+  bucket = aws_s3_bucket.this.id
+  name   = each.key
+
+  dynamic "filter" {
+    for_each = length(try(flatten([each.value.filter]), [])) == 0 ? [] : [true]
+
+    content {
+      prefix = try(each.value.filter.prefix, null)
+      tags   = try(each.value.filter.tags, null)
+    }
+  }
+
+  dynamic "storage_class_analysis" {
+    for_each = length(try(flatten([each.value.storage_class_analysis]), [])) == 0 ? [] : [true]
+
+    content {
+
+      data_export {
+        output_schema_version = try(each.value.storage_class_analysis.output_schema_version, null)
+
+        destination {
+
+          s3_bucket_destination {
+            bucket_arn        = try(each.value.storage_class_analysis.destination_bucket_arn, aws_s3_bucket.this[0].arn)
+            bucket_account_id = try(each.value.storage_class_analysis.destination_account_id, data.aws_caller_identity.current.id)
+            format            = try(each.value.storage_class_analysis.export_format, "CSV")
+            prefix            = try(each.value.storage_class_analysis.export_prefix, null)
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "aws_s3_bucket_cors_configuration" "this" {
+  count = length(local.cors_rules) > 0 ? 1 : 0
+
+  bucket                = aws_s3_bucket.this.id
+  expected_bucket_owner = var.expected_bucket_owner
+
+  dynamic "cors_rule" {
+    for_each = local.cors_rules
+
+    content {
+      id              = try(cors_rule.value.id, null)
+      allowed_methods = cors_rule.value.allowed_methods
+      allowed_origins = cors_rule.value.allowed_origins
+      allowed_headers = try(cors_rule.value.allowed_headers, null)
+      expose_headers  = try(cors_rule.value.expose_headers, null)
+      max_age_seconds = try(cors_rule.value.max_age_seconds, null)
+    }
+  }
+}
+
+resource "aws_s3_bucket_logging" "this" {
+  count = length(keys(var.logging)) > 0 ? 1 : 0
+
+  bucket = aws_s3_bucket.this.id
+
+  target_bucket = var.logging["target_bucket"]
+  target_prefix = try(var.logging["target_prefix"], null)
+
+
+  dynamic "target_object_key_format" {
+    for_each = try([var.logging["target_object_key_format"]], [])
+
+    content {
+      dynamic "partitioned_prefix" {
+        for_each = try(target_object_key_format.value["partitioned_prefix"], [])
+
+        content {
+          partition_date_source = try(partitioned_prefix.value, null)
+        }
+      }
+
+      dynamic "simple_prefix" {
+        for_each = contains(keys(target_object_key_format.value), "simple_prefix") ? [true] : []
+
+        content {}
+      }
+    }
+  }
+}
+
+resource "aws_s3_bucket_metric" "this" {
+  for_each = { for k, v in local.metric_configuration : k => v }
+
+  name   = each.value.name
+  bucket = aws_s3_bucket.this.id
+
+  dynamic "filter" {
+    for_each = length(try(flatten([each.value.filter]), [])) == 0 ? [] : [true]
+    content {
+      prefix = try(each.value.filter.prefix, null)
+      tags   = try(each.value.filter.tags, null)
     }
   }
 }

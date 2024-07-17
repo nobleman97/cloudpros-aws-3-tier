@@ -1,4 +1,4 @@
-data "aws_canonical_user_id" "current" {}
+# data "aws_canonical_user_id" "current" {}
 
 data "aws_region" "current" {}
 
@@ -268,7 +268,7 @@ data "aws_iam_policy_document" "deny_incorrect_kms_key_sse" {
       values   = [try(var.allowed_kms_key_arn, null)]
     }
   }
-} 
+}
 
 data "aws_iam_policy_document" "require_latest_tls" {
   count = var.attach_require_latest_tls_policy ? 1 : 0
