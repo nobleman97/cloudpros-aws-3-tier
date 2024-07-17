@@ -188,9 +188,64 @@ variable "lifecycle_rule" {
   default     = []
 }
 
-variable "lifecycle_rule" {
-  description = "List of maps containing configuration of object lifecycle management."
-  type        = any
+variable "access_log_delivery_policy_source_buckets" {
+  description = "(Optional) List of S3 bucket ARNs which should be allowed to deliver access logs to this bucket."
+  type        = list(string)
   default     = []
 }
+
+variable "access_log_delivery_policy_source_accounts" {
+  description = "(Optional) List of AWS Account IDs should be allowed to deliver access logs to this bucket."
+  type        = list(string)
+  default     = []
+}
+
+variable "inventory_self_source_destination" {
+  description = "Whether or not the inventory source bucket is also the destination bucket."
+  type        = bool
+  default     = false
+}
+
+variable "analytics_self_source_destination" {
+  description = "Whether or not the analytics source bucket is also the destination bucket."
+  type        = bool
+  default     = false
+}
+
+variable "inventory_source_bucket_arn" {
+  description = "The inventory source bucket ARN."
+  type        = string
+  default     = null
+}
+
+variable "analytics_source_bucket_arn" {
+  description = "The analytics source bucket ARN."
+  type        = string
+  default     = null
+}
+
+variable "inventory_source_account_id" {
+  description = "The inventory source account id."
+  type        = string
+  default     = null
+}
+
+variable "analytics_source_account_id" {
+  description = "The analytics source account id."
+  type        = string
+  default     = null
+}
+
+variable "allowed_kms_key_arn" {
+  description = "The ARN of KMS key which should be allowed in PutObject"
+  type        = string
+  default     = null
+}
+
+variable "server_side_encryption_configuration" {
+  description = "Map containing server-side encryption configuration."
+  type        = any
+  default     = {}
+}
+
 

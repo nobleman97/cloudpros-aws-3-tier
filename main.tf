@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "this" {
-  count = var.create_bucket ? 1 : 0
+#   count = var.create_bucket ? 1 : 0
 
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
@@ -10,9 +10,9 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_versioning" "this" {
-  count = var.create_bucket && length(keys(var.versioning)) > 0 ? 1 : 0
+  count = length(keys(var.versioning)) > 0 ? 1 : 0
 
-  bucket                = aws_s3_bucket.this[0].id
+  bucket                = aws_s3_bucket.this.id
   expected_bucket_owner = var.expected_bucket_owner
   mfa                   = try(var.versioning["mfa"], null)
 
@@ -27,9 +27,9 @@ resource "aws_s3_bucket_versioning" "this" {
 
 
 resource "aws_s3_bucket_public_access_block" "this" {
-  count = var.create_bucket && var.attach_public_policy ? 1 : 0
+  count = var.attach_public_policy ? 1 : 0
 
-  bucket = aws_s3_bucket.this[0].id
+  bucket = aws_s3_bucket.this.id
 
   block_public_acls       = var.block_public_acls
   block_public_policy     = var.block_public_policy
@@ -38,9 +38,9 @@ resource "aws_s3_bucket_public_access_block" "this" {
 }
 
 resource "aws_s3_bucket_acl" "this" {
-  count = var.create_bucket && local.create_bucket_acl ? 1 : 0
+  count = local.create_bucket_acl ? 1 : 0
 
-  bucket                = aws_s3_bucket.this[0].id
+  bucket                = aws_s3_bucket.this.id
   expected_bucket_owner = var.expected_bucket_owner
 
   acl = var.acl == "null" ? null : var.acl
@@ -76,13 +76,13 @@ resource "aws_s3_bucket_acl" "this" {
 }
 
 resource "aws_s3_bucket_policy" "this" {
-  count = var.create_bucket && local.attach_policy ? 1 : 0
+  count = local.attach_policy ? 1 : 0
 
   # Chain resources (s3_bucket -> s3_bucket_public_access_block -> s3_bucket_policy )
   # to prevent "A conflicting conditional operation is currently in progress against this resource."
   # Ref: https://github.com/hashicorp/terraform-provider-aws/issues/7628
 
-  bucket = aws_s3_bucket.this[0].id
+  bucket = aws_s3_bucket.this.id
   policy = data.aws_iam_policy_document.combined[0].json
 
   depends_on = [
@@ -91,9 +91,9 @@ resource "aws_s3_bucket_policy" "this" {
 }
 
 resource "aws_s3_bucket_ownership_controls" "this" {
-  count = var.create_bucket && var.control_object_ownership ? 1 : 0
+  count = var.control_object_ownership ? 1 : 0
 
-  bucket = local.attach_policy ? aws_s3_bucket_policy.this[0].id : aws_s3_bucket.this[0].id
+  bucket = local.attach_policy ? aws_s3_bucket_policy.this[0].id : aws_s3_bucket.this.id
 
   rule {
     object_ownership = var.object_ownership
@@ -108,9 +108,9 @@ resource "aws_s3_bucket_ownership_controls" "this" {
 }
 
 resource "aws_s3_bucket_website_configuration" "this" {
-  count = var.create_bucket && length(keys(var.website)) > 0 ? 1 : 0
+  count = length(keys(var.website)) > 0 ? 1 : 0
 
-  bucket                = aws_s3_bucket.this[0].id
+  bucket                = aws_s3_bucket.this.id
   expected_bucket_owner = var.expected_bucket_owner
 
   dynamic "index_document" {
@@ -163,9 +163,9 @@ resource "aws_s3_bucket_website_configuration" "this" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "this" {
-  count = var.create_bucket && length(local.lifecycle_rules) > 0 ? 1 : 0
+  count = length(local.lifecycle_rules) > 0 ? 1 : 0
 
-  bucket                = aws_s3_bucket.this[0].id
+  bucket                = aws_s3_bucket.this.id
   expected_bucket_owner = var.expected_bucket_owner
 
   dynamic "rule" {
@@ -277,17 +277,26 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
   depends_on = [aws_s3_bucket_versioning.this]
 }
 
-resource "aws_s3_bucket_policy" "this" {
-  count = var.create_bucket && local.attach_policy ? 1 : 0
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  count = length(keys(var.server_side_encryption_configuration)) > 0 ? 1 : 0
 
-  # Chain resources (s3_bucket -> s3_bucket_public_access_block -> s3_bucket_policy )
-  # to prevent "A conflicting conditional operation is currently in progress against this resource."
-  # Ref: https://github.com/hashicorp/terraform-provider-aws/issues/7628
+  bucket                = aws_s3_bucket.this.id
+  expected_bucket_owner = var.expected_bucket_owner
 
-  bucket = aws_s3_bucket.this[0].id
-  policy = data.aws_iam_policy_document.combined[0].json
+  dynamic "rule" {
+    for_each = try(flatten([var.server_side_encryption_configuration["rule"]]), [])
 
-  depends_on = [
-    aws_s3_bucket_public_access_block.this
-  ]
+    content {
+      bucket_key_enabled = try(rule.value.bucket_key_enabled, null)
+
+      dynamic "apply_server_side_encryption_by_default" {
+        for_each = try([rule.value.apply_server_side_encryption_by_default], [])
+
+        content {
+          sse_algorithm     = apply_server_side_encryption_by_default.value.sse_algorithm
+          kms_master_key_id = try(apply_server_side_encryption_by_default.value.kms_master_key_id, null)
+        }
+      }
+    }
+  }
 }
