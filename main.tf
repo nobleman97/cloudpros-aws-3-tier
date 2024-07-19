@@ -5,7 +5,7 @@
 resource "aws_s3_bucket" "this" {
   #   count = var.create_bucket ? 1 : 0
 
-  bucket        = var.bucket_name
+  bucket        = lower(var.bucket_name)
   bucket_prefix = var.bucket_prefix
 
   force_destroy       = var.force_destroy
@@ -28,7 +28,6 @@ resource "aws_s3_bucket_versioning" "this" {
     mfa_delete = try(tobool(var.versioning["mfa_delete"]) ? "Enabled" : "Disabled", title(lower(var.versioning["mfa_delete"])), null)
   }
 }
-
 
 resource "aws_s3_bucket_public_access_block" "this" {
   count = var.attach_public_policy ? 1 : 0
@@ -403,6 +402,22 @@ resource "aws_s3_bucket_metric" "this" {
     content {
       prefix = try(each.value.filter.prefix, null)
       tags   = try(each.value.filter.tags, null)
+    }
+  }
+}
+
+resource "aws_s3_bucket_object_lock_configuration" "this" {
+  count = var.object_lock_enabled && try(var.object_lock_configuration.rule.default_retention, null) != null ? 1 : 0
+
+  bucket                = aws_s3_bucket.this.id
+  expected_bucket_owner = var.expected_bucket_owner
+  token                 = try(var.object_lock_configuration.token, null)
+
+  rule {
+    default_retention {
+      mode  = var.object_lock_configuration.rule.default_retention.mode
+      days  = try(var.object_lock_configuration.rule.default_retention.days, null)
+      years = try(var.object_lock_configuration.rule.default_retention.years, null)
     }
   }
 }

@@ -27,22 +27,16 @@ variable "object_lock_enabled" {
   default     = false
 }
 
+variable "object_lock_configuration" {
+  description = "Map containing S3 object locking configuration."
+  type        = any
+  default     = {}
+}
+
 variable "force_destroy" {
   type    = bool
   default = false
 }
-
-# variable "aws_s3_bucket_versioning" {
-#   description = "Enabled or Disabled"
-#   type        = string
-#   default     = "Enabled"
-# }
-
-# variable "create_bucket" {
-#   description = "Controls if S3 bucket should be created"
-#   type        = bool
-#   default     = true
-# }
 
 variable "acl" {
   description = "(Optional) The canned ACL to apply. Conflicts with `grant`"
