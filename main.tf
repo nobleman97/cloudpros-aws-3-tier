@@ -14,7 +14,7 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_versioning" "this" {
-  count = length(keys(var.versioning)) > 0 ? 1 : 0
+  # count = length(keys(var.versioning)) > 0 ? 1 : 0
 
   bucket                = aws_s3_bucket.this.id
   expected_bucket_owner = var.expected_bucket_owner
@@ -22,7 +22,7 @@ resource "aws_s3_bucket_versioning" "this" {
 
   versioning_configuration {
     # Valid values: "Enabled" or "Suspended"
-    status = try(var.versioning["enabled"] ? "Enabled" : "Suspended", tobool(var.versioning["status"]) ? "Enabled" : "Suspended", title(lower(var.versioning["status"])))
+    status = "Enabled" #try(var.versioning["enabled"] ? "Enabled" : "Suspended", tobool(var.versioning["status"]) ? "Enabled" : "Suspended", title(lower(var.versioning["status"])))
 
     # Valid values: "Enabled" or "Disabled"
     mfa_delete = try(tobool(var.versioning["mfa_delete"]) ? "Enabled" : "Disabled", title(lower(var.versioning["mfa_delete"])), null)
@@ -40,6 +40,7 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = var.restrict_public_buckets
 }
 
+# Not Recommended
 resource "aws_s3_bucket_acl" "this" {
   count = local.create_bucket_acl ? 1 : 0
 
@@ -164,6 +165,28 @@ resource "aws_s3_bucket_website_configuration" "this" {
     }
   }
 }
+
+
+resource "aws_s3_bucket_cors_configuration" "this" {
+  count = length(local.cors_rules) > 0 ? 1 : 0
+
+  bucket                = aws_s3_bucket.this.id
+  expected_bucket_owner = var.expected_bucket_owner
+
+  dynamic "cors_rule" {
+    for_each = local.cors_rules
+
+    content {
+      id              = try(cors_rule.value.id, null)
+      allowed_methods = cors_rule.value.allowed_methods
+      allowed_origins = cors_rule.value.allowed_origins
+      allowed_headers = try(cors_rule.value.allowed_headers, null)
+      expose_headers  = try(cors_rule.value.expose_headers, null)
+      max_age_seconds = try(cors_rule.value.max_age_seconds, null)
+    }
+  }
+}
+
 
 resource "aws_s3_bucket_lifecycle_configuration" "this" {
   count = length(local.lifecycle_rules) > 0 ? 1 : 0
@@ -341,26 +364,6 @@ resource "aws_s3_bucket_analytics_configuration" "this" {
   }
 }
 
-resource "aws_s3_bucket_cors_configuration" "this" {
-  count = length(local.cors_rules) > 0 ? 1 : 0
-
-  bucket                = aws_s3_bucket.this.id
-  expected_bucket_owner = var.expected_bucket_owner
-
-  dynamic "cors_rule" {
-    for_each = local.cors_rules
-
-    content {
-      id              = try(cors_rule.value.id, null)
-      allowed_methods = cors_rule.value.allowed_methods
-      allowed_origins = cors_rule.value.allowed_origins
-      allowed_headers = try(cors_rule.value.allowed_headers, null)
-      expose_headers  = try(cors_rule.value.expose_headers, null)
-      max_age_seconds = try(cors_rule.value.max_age_seconds, null)
-    }
-  }
-}
-
 resource "aws_s3_bucket_logging" "this" {
   count = length(keys(var.logging)) > 0 ? 1 : 0
 
@@ -420,4 +423,14 @@ resource "aws_s3_bucket_object_lock_configuration" "this" {
       years = try(var.object_lock_configuration.rule.default_retention.years, null)
     }
   }
+}
+
+resource "aws_s3_bucket_accelerate_configuration" "this" {
+  count = var.acceleration_status != null ? 1 : 0
+
+  bucket                = aws_s3_bucket.this.id
+  expected_bucket_owner = var.expected_bucket_owner
+
+  # Valid values: "Enabled" or "Suspended"
+  status = title(lower(var.acceleration_status))
 }

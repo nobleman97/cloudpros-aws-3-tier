@@ -265,3 +265,10 @@ variable "metric_configuration" {
   type        = any
   default     = []
 }
+
+variable "acceleration_status" {
+  description = "(Optional) Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended."
+  type        = string
+  default     = null
+}
+
