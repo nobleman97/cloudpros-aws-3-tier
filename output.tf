@@ -21,3 +21,15 @@
 # output "private_instance_sg_id" {
 #   value = aws_security_group.allow_private_instance_tls.id
 # }
+
+output "vpc" {
+  value = aws_vpc.main
+}
+
+output "private_subnets" {
+  value = { for key, subnet in aws_subnet.private :
+    key => subnet
+  }
+
+  # value = aws_subnet.private["priv1"]
+}

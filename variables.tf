@@ -17,7 +17,7 @@ variable "vpc_cidr" {
 }
 
 variable "region" {
-  description = "Dedfault region to deploy resources to"
+  description = "Default region to deploy resources to"
   type        = string
   default     = "us-east-1"
 }
