@@ -3,12 +3,17 @@
 This Terraform module deploys an AWS S3 resource along with some extra configurations.
 
 
-<!-- ## Installation
-```sh
-# Initialize the mmodule
-$ terraform
+These features of S3 bucket configurations are supported:
 
-``` -->
+
+- access logging
+- versioning
+- lifecycle rules
+- server-side encryption
+- object locking
+<!-- - Cross-Region Replication (CRR) -->
+<!-- - ELB log delivery bucket policy
+- ALB/NLB log delivery bucket policy -->
 
 ## Usage Examples
 Example usages can be found in the [examples folder](./examples/).
@@ -48,7 +53,6 @@ No modules.
 | [aws_s3_bucket_accelerate_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_accelerate_configuration) | resource |
 | [aws_s3_bucket_acl.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_acl) | resource |
 | [aws_s3_bucket_analytics_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_analytics_configuration) | resource |
-| [aws_s3_bucket_cors_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_cors_configuration) | resource |
 | [aws_s3_bucket_lifecycle_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_logging.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_logging) | resource |
 | [aws_s3_bucket_metric.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_metric) | resource |
@@ -58,7 +62,6 @@ No modules.
 | [aws_s3_bucket_public_access_block.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_public_access_block) | resource |
 | [aws_s3_bucket_server_side_encryption_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
 | [aws_s3_bucket_versioning.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_versioning) | resource |
-| [aws_s3_bucket_website_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_website_configuration) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.access_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.combined](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
@@ -102,7 +105,6 @@ No modules.
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | n/a | `string` | `"demo"` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket. | `string` | `null` | no |
 | <a name="input_control_object_ownership"></a> [control\_object\_ownership](#input\_control\_object\_ownership) | Whether to manage S3 Bucket Ownership Controls on this bucket. | `bool` | `false` | no |
-| <a name="input_cors_rule"></a> [cors\_rule](#input\_cors\_rule) | List of maps containing rules for Cross-Origin Resource Sharing. | `any` | `[]` | no |
 | <a name="input_expected_bucket_owner"></a> [expected\_bucket\_owner](#input\_expected\_bucket\_owner) | The account ID of the expected bucket owner | `string` | `null` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | n/a | `bool` | `false` | no |
 | <a name="input_grant"></a> [grant](#input\_grant) | An ACL policy grant. Conflicts with `acl` | `any` | `[]` | no |
@@ -121,7 +123,6 @@ No modules.
 | <a name="input_server_side_encryption_configuration"></a> [server\_side\_encryption\_configuration](#input\_server\_side\_encryption\_configuration) | Map containing server-side encryption configuration. | `any` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the bucket. | `map(string)` | `{}` | no |
 | <a name="input_versioning"></a> [versioning](#input\_versioning) | Map containing versioning configuration. | `map(string)` | `{}` | no |
-| <a name="input_website"></a> [website](#input\_website) | Map containing static web-site hosting or redirect configuration. | `any` | `{}` | no |
 
 ## Outputs
 
@@ -131,4 +132,4 @@ No modules.
 <!-- END_TF_DOCS -->
 
 ## Related Documentation
-...
+- [Official S3 Terraform Module](https://github.com/terraform-aws-modules/terraform-aws-s3-bucket/tree/master)

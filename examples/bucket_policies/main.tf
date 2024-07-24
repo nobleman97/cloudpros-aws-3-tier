@@ -52,6 +52,17 @@ module "s3_bucket" {
       name = "all"
     }
   ]
+
+  logging = {
+    target_bucket = "perizer-vpclogsbucket" #module.log_bucket.s3_bucket_id
+    target_prefix = "test_s3_logging/"
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "DeliveryTime" # "EventTime"
+      }
+      # simple_prefix = {}
+    }
+  }
 }
 
 

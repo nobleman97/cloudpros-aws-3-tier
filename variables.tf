@@ -170,11 +170,12 @@ variable "restrict_public_buckets" {
   default     = true
 }
 
-variable "website" {
-  description = "Map containing static web-site hosting or redirect configuration."
-  type        = any # map(string)
-  default     = {}
-}
+
+# variable "website" {
+#   description = "Map containing static web-site hosting or redirect configuration."
+#   type        = any # map(string)
+#   default     = {}
+# }
 
 variable "lifecycle_rule" {
   description = "List of maps containing configuration of object lifecycle management."
@@ -248,11 +249,11 @@ variable "analytics_configuration" {
   default     = {}
 }
 
-variable "cors_rule" {
-  description = "List of maps containing rules for Cross-Origin Resource Sharing."
-  type        = any
-  default     = []
-}
+# variable "cors_rule" {
+#   description = "List of maps containing rules for Cross-Origin Resource Sharing."
+#   type        = any
+#   default     = []
+# }
 
 variable "logging" {
   description = "Map containing access bucket logging configuration."
