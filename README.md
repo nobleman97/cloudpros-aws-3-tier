@@ -2,9 +2,7 @@
 
 This Terraform module deploys an AWS S3 resource along with some extra configurations.
 
-
 These features of S3 bucket configurations are supported:
-
 
 - Access logging
 - Versioning
@@ -14,17 +12,8 @@ These features of S3 bucket configurations are supported:
 - Bucket policies
 
 
-<!-- - Cross-Region Replication (CRR) -->
-<!-- - ELB log delivery bucket policy
-- ALB/NLB log delivery bucket policy -->
-
 ## Usage Examples
 Example usages can be found in the [examples folder](./examples/).
-
-
-
-
-
 
 ---
 <!-- BEGIN_TF_DOCS -->
@@ -33,10 +22,9 @@ Example usages can be found in the [examples folder](./examples/).
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | = 5.58.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.58.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~>3.63.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.4.0 |
-| <a name="requirement_time"></a> [time](#requirement\_time) | ~>0.9.1 |
 
 ## Providers
 
@@ -52,31 +40,31 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket_accelerate_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_accelerate_configuration) | resource |
-| [aws_s3_bucket_acl.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_acl) | resource |
-| [aws_s3_bucket_analytics_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_analytics_configuration) | resource |
-| [aws_s3_bucket_lifecycle_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_lifecycle_configuration) | resource |
-| [aws_s3_bucket_logging.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_logging) | resource |
-| [aws_s3_bucket_metric.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_metric) | resource |
-| [aws_s3_bucket_object_lock_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_object_lock_configuration) | resource |
-| [aws_s3_bucket_ownership_controls.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_ownership_controls) | resource |
-| [aws_s3_bucket_policy.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_policy) | resource |
-| [aws_s3_bucket_public_access_block.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_public_access_block) | resource |
-| [aws_s3_bucket_server_side_encryption_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
-| [aws_s3_bucket_versioning.this](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/resources/s3_bucket_versioning) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/caller_identity) | data source |
-| [aws_iam_policy_document.access_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.combined](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.deny_incorrect_encryption_headers](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.deny_incorrect_kms_key_sse](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.deny_insecure_transport](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.deny_unencrypted_object_uploads](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.elb_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.inventory_and_analytics_destination_policy](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.lb_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.require_latest_tls](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.58.0/docs/data-sources/region) | data source |
+| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_accelerate_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_accelerate_configuration) | resource |
+| [aws_s3_bucket_acl.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
+| [aws_s3_bucket_analytics_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_analytics_configuration) | resource |
+| [aws_s3_bucket_lifecycle_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
+| [aws_s3_bucket_logging.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
+| [aws_s3_bucket_metric.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_metric) | resource |
+| [aws_s3_bucket_object_lock_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_object_lock_configuration) | resource |
+| [aws_s3_bucket_ownership_controls.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls) | resource |
+| [aws_s3_bucket_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
+| [aws_s3_bucket_public_access_block.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
+| [aws_s3_bucket_server_side_encryption_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
+| [aws_s3_bucket_versioning.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.access_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.deny_incorrect_encryption_headers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.deny_incorrect_kms_key_sse](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.deny_insecure_transport](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.deny_unencrypted_object_uploads](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.elb_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.inventory_and_analytics_destination_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.lb_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.require_latest_tls](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 

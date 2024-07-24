@@ -1,1 +1,1 @@
-name                     = "variable_value"
+name = "variable_value"

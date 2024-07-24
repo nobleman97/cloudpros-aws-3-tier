@@ -1,5 +1,3 @@
-# data "aws_canonical_user_id" "current" {}
-
 data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
@@ -376,5 +374,3 @@ data "aws_iam_policy_document" "deny_unencrypted_object_uploads" {
     }
   }
 }
-
-
