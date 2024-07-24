@@ -2,7 +2,6 @@ module "s3_bucket" {
   source = "../../"
 
   bucket_name = "CLOUD-288-AWS-S3-Module"
-  # expected_bucket_owner = "590183840478"
 
   control_object_ownership = true
   object_ownership         = "BucketOwnerEnforced"
@@ -10,7 +9,9 @@ module "s3_bucket" {
   # Attach Policies
   attach_policy                         = true
   attach_deny_insecure_transport_policy = true
-  policy                                = data.aws_iam_policy_document.allow_public_access.json # Add an additional policy like the one below
+
+  # Add an additional policy like the one below
+  policy = data.aws_iam_policy_document.allow_public_access.json
 
   # Enable Public Access    # Set all to `false` to allow all public access
   block_public_policy     = true
@@ -65,7 +66,6 @@ module "s3_bucket" {
   }
 }
 
-
 # WARNING: This is a public access policy. We probably don't want to use it
 data "aws_iam_policy_document" "allow_public_access" {
   version = "2012-10-17"
@@ -89,4 +89,3 @@ data "aws_iam_policy_document" "allow_public_access" {
     }
   }
 }
-

@@ -2,13 +2,6 @@ module "s3_bucket" {
   source = "../../"
 
   bucket_name = "CLOUD-288-AWS-S3-Module"
-  # expected_bucket_owner = "590183840478"
-
-
-
-  # Attach Policies
-  # attach_policy                          = true
-  # attach_deny_unencrypted_object_uploads = true
 
   lifecycle_rule = [
 
@@ -75,7 +68,4 @@ module "s3_bucket" {
       }
     }
   }
-
-
-
 }
