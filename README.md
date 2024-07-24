@@ -23,8 +23,6 @@ Example usages can be found in the [examples folder](./examples/).
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.58.0 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~>3.63.0 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.4.0 |
 
 ## Providers
 
