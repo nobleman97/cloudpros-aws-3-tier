@@ -11,7 +11,6 @@ These features of S3 bucket configurations are supported:
 - Object locking
 - Bucket policies
 
-
 ## Usage Examples
 Example usages can be found in the [examples folder](./examples/).
 
