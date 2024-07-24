@@ -6,11 +6,14 @@ This Terraform module deploys an AWS S3 resource along with some extra configura
 These features of S3 bucket configurations are supported:
 
 
-- access logging
-- versioning
-- lifecycle rules
-- server-side encryption
-- object locking
+- Access logging
+- Versioning
+- Lifecycle rules
+- Server-side encryption
+- Object locking
+- Bucket policies
+
+
 <!-- - Cross-Region Replication (CRR) -->
 <!-- - ELB log delivery bucket policy
 - ALB/NLB log delivery bucket policy -->

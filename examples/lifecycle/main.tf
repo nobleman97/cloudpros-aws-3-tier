@@ -67,14 +67,14 @@ module "s3_bucket" {
   ]
 
   # Server-side Encryption
-  # server_side_encryption_configuration = {
-  #   rule = {
-  #     apply_server_side_encryption_by_default = {
-  #       sse_algorithm     = "aws:kms"
-  #       kms_master_key_id = null
-  #     }
-  #   }
-  # }
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        sse_algorithm     = "aws:kms"
+        kms_master_key_id = null # The default `aws/s3` AWS KMS master key is used if this element is absent while the `sse_algorithm` is `aws:kms`.
+      }
+    }
+  }
 
 
 
