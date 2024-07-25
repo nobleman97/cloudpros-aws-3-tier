@@ -3,7 +3,6 @@
 #tfsec:ignore:aws-s3-enable-bucket-encryption
 #tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "this" {
-  #   count = var.create_bucket ? 1 : 0
 
   bucket        = lower(var.bucket_name)
   bucket_prefix = var.bucket_prefix
@@ -14,7 +13,6 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_versioning" "this" {
-  # count = length(keys(var.versioning)) > 0 ? 1 : 0
 
   bucket                = aws_s3_bucket.this.id
   expected_bucket_owner = var.expected_bucket_owner
@@ -22,7 +20,7 @@ resource "aws_s3_bucket_versioning" "this" {
 
   versioning_configuration {
     # Valid values: "Enabled" or "Suspended"
-    status = "Enabled" #try(var.versioning["enabled"] ? "Enabled" : "Suspended", tobool(var.versioning["status"]) ? "Enabled" : "Suspended", title(lower(var.versioning["status"])))
+    status = "Enabled"
 
     # Valid values: "Enabled" or "Disabled"
     mfa_delete = try(tobool(var.versioning["mfa_delete"]) ? "Enabled" : "Disabled", title(lower(var.versioning["mfa_delete"])), null)
