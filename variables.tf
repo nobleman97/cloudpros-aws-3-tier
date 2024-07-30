@@ -1,6 +1,7 @@
 variable "bucket_name" {
-  type    = string
-  default = "demo"
+  description = "Name of bucket"
+  type        = string
+  default     = "demo"
 }
 
 variable "bucket_prefix" {
@@ -34,8 +35,9 @@ variable "object_lock_configuration" {
 }
 
 variable "force_destroy" {
-  type    = bool
-  default = false
+  description = "Boolean that indicates indicates if all objects should be deleted from the bucket when the bucket is destroyed so that the bucket can be destroyed without error."
+  type        = bool
+  default     = false
 }
 
 variable "acl" {
