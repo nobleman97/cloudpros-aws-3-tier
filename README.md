@@ -27,7 +27,7 @@ Example usages can be found in the [examples folder](./examples/).
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.58.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.58.0 |
 
 ## Modules
 
