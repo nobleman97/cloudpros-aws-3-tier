@@ -6,23 +6,23 @@ import (
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/aws"
+	// aws_terratest "github.com/aws/aws-sdk-go/aws"
 	// "github.com/gruntwork-io/terratest/modules/random"
+	// "github.com/aws/aws-sdk-go/aws/session"
+	// "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
-// An example of how to test the Terraform module in examples/terraform-aws-s3-example using Terratest.
 func TestTerraformAwsS3Example(t *testing.T) {
 	t.Parallel()
 
-	// Give this S3 Bucket a unique ID for a name tag so we can distinguish it from any other Buckets provisioned
-	// in your AWS account
 	// expectedName := fmt.Sprintf("terratest-aws-s3-example-%s", strings.ToLower(random.UniqueId()))
 
-	// Give this S3 Bucket an environment to operate as a part of for the purposes of resource tagging
 	// expectedEnvironment := "Automated Testing"
 
-	// Pick a random AWS region to test in. This helps ensure your code works in all regions.
+	// bucket_name := "test_bucket"
+
 	awsRegion := "us-east-1" //aws.GetRandomStableRegion(t, nil, nil)
 
 	// Construct the terraform options with default retryable errors to handle the most common retryable errors in
@@ -32,12 +32,13 @@ func TestTerraformAwsS3Example(t *testing.T) {
 		TerraformDir: "../examples/bucket_policies",
 
 		// Variables to pass to our Terraform code using -var options
-		// Vars: map[string]interface{}{
+		Vars: map[string]interface{}{
+			// "bucket_name" : bucket_name,
 		// 	"tag_bucket_name":        expectedName,
 		// 	"tag_bucket_environment": expectedEnvironment,
 		// 	"with_policy":            "true",
-		// 	"region":                 awsRegion,
-		// },
+			// "region":                 awsRegion,
+		},
 	})
 
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created
@@ -65,4 +66,23 @@ func TestTerraformAwsS3Example(t *testing.T) {
 
 	// assert.Equal(t, expectedLogsTargetBucket, loggingTargetBucket)
 	// assert.Equal(t, expectedLogsTargetPrefix, loggingObjectTargetPrefix)
+
+
+
+
+	// // Create a new AWS session
+	// sess, err := session.NewSession(&aws.Config{
+	// 	Region: aws.String(awsRegion)},
+	// )
+	// if err != nil {
+	// 	t.Fatalf("Failed to create AWS session: %s", err)
+	// }
+
+	// s3Client := s3.New(sess)
+
+
+	// // Test 2: Check if versioning is enabled
+	// resp, err := s3Client.GetBucketVersioning(&s3.GetBucketVersioningInput{
+	// 	Bucket: aws.String(bucketName),
+	// })
 }

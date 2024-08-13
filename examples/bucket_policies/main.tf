@@ -48,9 +48,6 @@ module "s3_bucket" {
           production = "true"
         }
       }
-    },
-    {
-      name = "all"
     }
   ]
 
@@ -121,15 +118,14 @@ module "s3_bucket" {
   }
 
   logging = {
-    target_bucket = "perizer-vpclogsbucket" #module.log_bucket.s3_bucket_id
-    target_prefix = "test_s3_logging/"
-    target_object_key_format = {
-      partitioned_prefix = {
-        partition_date_source = "DeliveryTime" # "EventTime"
-      }
-      # simple_prefix = {}
-    }
+    bucket        = "CLOUD-288-AWS-S3-Module"
+    target_bucket = "perizer-vpclogsbucket"
+    target_prefix = "log/"
+
+
   }
+
+
 }
 
 # WARNING: This is a public access policy. We probably don't want to use it

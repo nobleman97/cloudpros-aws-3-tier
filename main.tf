@@ -274,7 +274,7 @@ resource "aws_s3_bucket_analytics_configuration" "this" {
         destination {
 
           s3_bucket_destination {
-            bucket_arn        = try(each.value.storage_class_analysis.destination_bucket_arn, aws_s3_bucket.this[0].arn)
+            bucket_arn        = try(each.value.storage_class_analysis.destination_bucket_arn, aws_s3_bucket.this.arn)
             bucket_account_id = try(each.value.storage_class_analysis.destination_account_id, data.aws_caller_identity.current.id)
             format            = try(each.value.storage_class_analysis.export_format, "CSV")
             prefix            = try(each.value.storage_class_analysis.export_prefix, null)
@@ -324,8 +324,9 @@ resource "aws_s3_bucket_metric" "this" {
   dynamic "filter" {
     for_each = length(try(flatten([each.value.filter]), [])) == 0 ? [] : [true]
     content {
-      prefix = try(each.value.filter.prefix, null)
-      tags   = try(each.value.filter.tags, null)
+      prefix       = try(each.value.filter.prefix, null)
+      tags         = try(each.value.filter.tags, null)
+      access_point = try(each.value.filter.access_point, null)
     }
   }
 }
