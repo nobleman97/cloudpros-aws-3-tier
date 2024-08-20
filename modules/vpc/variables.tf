@@ -1,5 +1,3 @@
-
-
 variable "name_prefix" {
   type        = string
   description = "The VPC name"
