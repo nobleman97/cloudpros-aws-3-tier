@@ -12,7 +12,6 @@ module "network" {
 #####################
 # Security Group
 #####################
-
 module "security_group" {
   source = "./modules/security_groups"
 
@@ -143,7 +142,6 @@ resource "aws_lb_listener_rule" "this" {
       values = [each.value.path_pattern]
     }
   }
-
 }
 
 
