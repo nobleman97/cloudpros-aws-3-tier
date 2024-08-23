@@ -126,16 +126,69 @@ variable "albs" {
       }))
 
       listeners = optional(list(object({
-        id               = string
-        port             = number
-        protocol         = string
-        rules     = optional(list(object({
-            priority = number
-            path_pattern = string
+        id       = string
+        port     = number
+        protocol = string
+        rules = optional(list(object({
+          priority     = number
+          path_pattern = string
         })))
       })))
     }))
 
+    auto_scaling_groups = optional(list(object({
+      desired_capacity          = number
+      max_size                  = number
+      min_size                  = number
+      health_check_type         = string
+      health_check_grace_period = number
+      target_group_name         = optional(string)
+      tags                      = map(string)
+
+      launch_templates = optional(list(object({
+        name_prefix                 = string
+        image_id                    = string
+        instance_type               = string
+        associate_public_ip_address = bool
+
+        auto_scaling_policies = optional(list(object({
+          name               = string
+          scaling_adjustment = number
+          adjustment_type    = string
+          cooldown           = number
+        })))
+      })))
+    })))
   }))
 }
-  
+
+
+variable "rds_config" {
+  description = "An object of configurations for the RDS"
+  type = object({
+    subnet_group_name      = string
+    allocated_storage      = number
+    engine                 = string
+    engine_version         = string
+    instance_class         = string
+    db_name                = string
+    multi_az               = bool
+    skip_final_snapshot    = bool
+  })
+}
+
+variable "cloud_watch_alarms" {
+  description = ""
+  type = map(object({
+    alarm_name = string
+    comparison_operator = string
+    evaluation_periods = number
+    metric_name = string
+    namespace  = string
+    period  = number
+    statistic = string
+    threshold = number
+
+    scaling_policy_id = number
+  }))
+}

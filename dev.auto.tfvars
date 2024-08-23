@@ -171,16 +171,89 @@ albs = [
 
         listeners = [
           {
-            id               = "http"
-            port             = 80
-            protocol         = "HTTP"
+            id       = "http"
+            port     = 80
+            protocol = "HTTP"
             rules = [{
               path_pattern = "/*"
-              priority = 1
+              priority     = 1
             }]
           }
         ]
       }
     ]
+
+    auto_scaling_groups = [{
+      desired_capacity          = 2
+      max_size                  = 4
+      min_size                  = 1
+      health_check_type         = "EC2"
+      health_check_grace_period = 300
+      target_group_name         = "app"
+      tags = {
+        key                 = "Name"
+        value               = "AppInstance"
+        propagate_at_launch = true
+      }
+
+      launch_templates = [{
+        associate_public_ip_address = false
+        auto_scaling_policies = [
+          {
+            adjustment_type    = "ChangeInCapacity"
+            cooldown           = 300
+            name               = "scale-out-1"
+            scaling_adjustment = 1
+          },
+          {
+            adjustment_type    = "ChangeInCapacity"
+            cooldown           = 300
+            name               = "scale-in-1"
+            scaling_adjustment = -1
+          }
+        ]
+        image_id      = "ami-04a81a99f5ec58529"
+        instance_type = "t3.micro"
+        name_prefix   = "app-lt-"
+      }]
+    }]
   }
 ]
+
+rds_config = {
+  subnet_group_name      = "rds-subnet-group"
+  allocated_storage      = 20
+  engine                 = "mysql"
+  engine_version         = "8.0"
+  instance_class         = "db.t3.micro"
+  db_name                = "appdb"
+  multi_az               = true
+  skip_final_snapshot    = true
+}
+
+cloud_watch_alarms = {
+  "cpu_high" = {
+    alarm_name          = "cpu_high"
+    comparison_operator = "GreaterThanThreshold"
+    evaluation_periods  = 2
+    metric_name         = "CPUUtilization"
+    namespace           = "AWS/EC2"
+    period              = 300
+    statistic           = "Average"
+    threshold           = 70
+    scaling_policy_id   = 0
+  }
+
+  "cpu_low" = {
+    alarm_name          = "cpu_low"
+    comparison_operator = "LessThanThreshold"
+    evaluation_periods  = 2
+    metric_name         = "CPUUtilization"
+    namespace           = "AWS/EC2"
+    period              = 300
+    statistic           = "Average"
+    threshold           = 30
+    scaling_policy_id   = 1
+  }
+}
+

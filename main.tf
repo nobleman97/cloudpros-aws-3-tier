@@ -151,63 +151,70 @@ resource "aws_lb_listener_rule" "this" {
 # # Auto-scaling Groups
 # ##########################
 
-# # Launch Template
-# resource "aws_launch_template" "app_lt" {
-#   name_prefix   = "app-lt-"
-#   image_id      = "ami-04a81a99f5ec58529" 
-#   instance_type = "t3.micro"
+# Launch Template
+resource "aws_launch_template" "this" {
+  for_each = {
+    for asg_launch_template in local.asg_launch_templates :
+    asg_launch_template.key => asg_launch_template
+  }
+  name_prefix   = each.value.name_prefix
+  image_id      = each.value.image_id
+  instance_type = each.value.instance_type
 
-#   network_interfaces {
-#     associate_public_ip_address = false
-#     security_groups             = [aws_security_group.app_sg.id]
-#   }
+  network_interfaces {
+    associate_public_ip_address = each.value.associate_public_ip_address
+    security_groups             = [aws_security_group.app_sg.id]
+  }
 
-#   user_data = <<-EOF
-#               #!/bin/bash
-#               apt update -y
-#               # Add app code here
-#               EOF
-# }
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo apt update -y
+              sudo apt install nginx
+              # Add app code here
+              EOF
+}
 
-# # Auto Scaling Group
-# resource "aws_autoscaling_group" "app_asg" {
-#   desired_capacity     = 4
-#   max_size             = 8
-#   min_size             = 2
-#   vpc_zone_identifier  = local.app_subnets
+# Auto Scaling Group
+resource "aws_autoscaling_group" "this" {
+  for_each = {
+    for auto_scaling_group in local.auto_scaling_groups :
+    auto_scaling_group.key => auto_scaling_group
+  }
 
-#   launch_template {
-#     id      = aws_launch_template.app_lt.id
-#     version = "$Latest"
-#   }
+  desired_capacity    = each.value.desired_capacity
+  max_size            = each.value.max_size
+  min_size            = each.value.min_size
+  vpc_zone_identifier = local.app_subnets
 
-#   target_group_arns = [aws_lb_target_group.app_tg.arn]
-#   health_check_type = "EC2"
-#   health_check_grace_period = 300
+  launch_template {
+    id      = aws_launch_template.this[each.value.launch_template_id].id
+    version = "$Latest"
+  }
 
-#   tag {
-#     key                 = "Name"
-#     value               = "AppInstance"
-#     propagate_at_launch = true
-#   }
-# }
+  target_group_arns         = [aws_lb_target_group.this[each.value.target_group_id].arn]
+  health_check_type         = each.value.health_check_type
+  health_check_grace_period = each.value.health_check_grace_period
+
+  tag {
+    key                 = each.value.tags["key"]
+    value               = each.value.tags["value"]
+    propagate_at_launch = each.value.tags["propagate_at_launch"]
+  }
+}
 
 # # Attach Scaling Policies
-# resource "aws_autoscaling_policy" "scale_out" {
-#   name                   = "scale-out"
-#   scaling_adjustment     = 1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 300
-#   autoscaling_group_name = aws_autoscaling_group.app_asg.name
-# }
+resource "aws_autoscaling_policy" "this" {
+  for_each = {
+    for auto_scaling_policy in local.auto_scaling_policies :
+    auto_scaling_policy.key => auto_scaling_policy
+  }
 
-# resource "aws_autoscaling_policy" "scale_in" {
-#   name                   = "scale-in"
-#   scaling_adjustment     = -1
-#   adjustment_type        = "ChangeInCapacity"
-#   cooldown               = 300
-#   autoscaling_group_name = aws_autoscaling_group.app_asg.name
-# }
+  name                   = each.value.name
+  scaling_adjustment     = each.value.scaling_adjustment
+  adjustment_type        = each.value.adjustment_type
+  cooldown               = each.value.cooldown
+  autoscaling_group_name = aws_autoscaling_group.this[each.value.auto_scaling_group_key].name
+}
 
 
 # ############################
@@ -215,63 +222,53 @@ resource "aws_lb_listener_rule" "this" {
 # ############################
 
 # # RDS Subnet Group
-# resource "aws_db_subnet_group" "db_subnet_group" {
-#   name       = "rds-subnet-group"
-#   subnet_ids = local.db_subnets
-# }
+resource "aws_db_subnet_group" "this" {
+  name       = var.rds_config.subnet_group_name
+  subnet_ids = local.db_subnets
+}
 
 # # RDS Instance
-# resource "aws_db_instance" "app_db" {
-#   allocated_storage    = 20
-#   engine               = "mysql"
-#   engine_version       = "8.0"
-#   instance_class       = "db.t3.micro"
-#   db_name              = "appdb"
-#   username             = "admin"
-#   password             = "insecurepassword"  # Use a secure method to store this password
-#   db_subnet_group_name = aws_db_subnet_group.db_subnet_group.name
-#   multi_az             = true
-#   vpc_security_group_ids = [aws_security_group.rds_sg.id]
-#   skip_final_snapshot  = true
-# }
+resource "aws_db_instance" "this" {
 
-# ##########################
-# # Cloud Watch
-# ##########################
+  allocated_storage      = var.rds_config.allocated_storage
+  engine                 = var.rds_config.engine
+  engine_version         = var.rds_config.engine_version
+  instance_class         = var.rds_config.instance_class
+  db_name                = var.rds_config.db_name
+  multi_az               = var.rds_config.multi_az
+  skip_final_snapshot    = var.rds_config.skip_final_snapshot
 
-# resource "aws_cloudwatch_metric_alarm" "cpu_high" {
-#   alarm_name          = "cpu_high"
-#   comparison_operator = "GreaterThanThreshold"
-#   evaluation_periods  = 2
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = 300
-#   statistic           = "Average"
-#   threshold           = 70
+  username               = data.aws_ssm_parameter.rds_username.value
+  password               = data.aws_ssm_parameter.rds_pwd.value
 
-#   dimensions = {
-#     AutoScalingGroupName = aws_autoscaling_group.app_asg.name
-#   }
+  db_subnet_group_name   = aws_db_subnet_group.this.name
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+}
 
-#   alarm_actions = [aws_autoscaling_policy.scale_out.arn]
-# }
+##########################
+# Cloud Watch
+##########################
 
-# resource "aws_cloudwatch_metric_alarm" "cpu_low" {
-#   alarm_name          = "cpu_low"
-#   comparison_operator = "LessThanThreshold"
-#   evaluation_periods  = 2
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = 300
-#   statistic           = "Average"
-#   threshold           = 30
+resource "aws_cloudwatch_metric_alarm" "this" {
+  for_each = var.cloud_watch_alarms
 
-#   dimensions = {
-#     AutoScalingGroupName = aws_autoscaling_group.app_asg.name
-#   }
+  alarm_name          = each.value.alarm_name
+  comparison_operator = each.value.comparison_operator
+  evaluation_periods  = each.value.evaluation_periods
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = each.value.statistic
+  threshold           = each.value.threshold
 
-#   alarm_actions = [aws_autoscaling_policy.scale_in.arn]
-# }
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.this[local.asg_keys[0]].name
+  }
+
+  alarm_actions = [aws_autoscaling_policy.this[local.aws_autoscaling_policy_keys[each.value.scaling_policy_id]].arn]
+}
+
+
 
 
 
