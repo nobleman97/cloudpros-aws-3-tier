@@ -1,4 +1,4 @@
-# Perizer AWS VPC Module
+# Unofficial AWS VPC Module
 
 This module helps to automate the creation of a VPC and its associated resources (e.g Subnets, route tables and gateways).
 
