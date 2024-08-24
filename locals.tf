@@ -1,17 +1,11 @@
 locals {
-  # create_bucket =
   create_bucket_acl = (var.acl != null && var.acl != "null") || length(local.grants) > 0
 
-  attach_policy = var.attach_require_latest_tls_policy || var.attach_access_log_delivery_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_inventory_destination_policy || var.attach_deny_incorrect_encryption_headers || var.attach_deny_incorrect_kms_key_sse || var.attach_deny_unencrypted_object_uploads || var.attach_policy
-
-
+  attach_policy        = var.attach_require_latest_tls_policy || var.attach_access_log_delivery_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_inventory_destination_policy || var.attach_deny_incorrect_encryption_headers || var.attach_deny_incorrect_kms_key_sse || var.attach_deny_unencrypted_object_uploads || var.attach_policy
   grants               = try(jsondecode(var.grant), var.grant)
   lifecycle_rules      = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
-  cors_rules           = try(jsondecode(var.cors_rule), var.cors_rule)
   metric_configuration = try(jsondecode(var.metric_configuration), var.metric_configuration)
-
 }
-
 
 # AWS Load Balancer access log delivery policy
 locals {
@@ -45,4 +39,3 @@ locals {
     cn-northwest-1 = "037604701340"
   }
 }
-

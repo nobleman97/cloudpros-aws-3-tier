@@ -30,9 +30,10 @@ variable "object_lock_enabled" {
 
 variable "object_lock_configuration" {
   description = "Map containing S3 object locking configuration."
-  type = object({
-
-    object_lock_enabled = optional(string)
+  type = map(object({
+    bucket                = string
+    expected_bucket_owner = optional(string)
+    object_lock_enabled   = optional(string)
     rule = optional(object({
       default_retention = object({
         days  = optional(number)
@@ -41,9 +42,9 @@ variable "object_lock_configuration" {
       })
     }))
     token = optional(string)
-  })
+  }))
 
-  default = {}
+  default     = {}
 }
 
 variable "force_destroy" {
@@ -60,7 +61,7 @@ variable "acl" {
 
 variable "grant" {
   description = "An ACL policy grant. Conflicts with `acl`"
-  type        = any # This is unnecessary and not recommend, so overlooked on purpose
+  type        = any
   default     = []
 }
 
@@ -186,97 +187,54 @@ variable "restrict_public_buckets" {
 
 variable "lifecycle_rule" {
   description = "List of maps containing configuration of object lifecycle management."
-
-  type = list(object({
-    id      = string
-    enabled = bool
-
-    abort_incomplete_multipart_upload = optional(object({
-      days_after_initiation = number
-    }))
-
-    expiration = optional(object({
-      date                         = optional(string)
-      days                         = optional(number)
-      expired_object_delete_marker = optional(bool)
-    }))
-
-    filter = optional(object({
-      and = optional(object({
+  type = map(object({
+    bucket                = string
+    expected_bucket_owner = optional(string)
+    rule = list(object({
+      id     = string
+      status = string
+      abort_incomplete_multipart_upload = optional(object({
+        days_after_initiation = number
+      }))
+      expiration = optional(object({
+        date                         = optional(string)
+        days                         = optional(number)
+        expired_object_delete_marker = optional(bool)
+      }))
+      filter = optional(object({
+        and = optional(object({
+          object_size_greater_than = optional(number)
+          object_size_less_than    = optional(number)
+          prefix                   = optional(string)
+          tags                     = optional(map(string))
+        }))
         object_size_greater_than = optional(number)
         object_size_less_than    = optional(number)
         prefix                   = optional(string)
-        tags                     = optional(map(string))
+        tag = optional(object({
+          key   = string
+          value = string
+        }))
       }))
-
-      object_size_greater_than = optional(number)
-      object_size_less_than    = optional(number)
-      prefix                   = optional(string)
-
-      tag = optional(object({
-        key   = string
-        value = string
+      noncurrent_version_expiration = optional(object({
+        newer_noncurrent_versions = optional(number)
+        noncurrent_days           = optional(number)
       }))
-
+      noncurrent_version_transition = optional(list(object({
+        newer_noncurrent_versions = optional(number)
+        noncurrent_days           = optional(number)
+        storage_class             = string
+      })))
+      prefix    = optional(string)
+      transition = optional(list(object({
+        date          = optional(string)
+        days          = optional(number)
+        storage_class = string
+      })))
     }))
-
-    noncurrent_version_expiration = optional(object({
-      newer_noncurrent_versions = optional(number)
-      noncurrent_days           = optional(number)
-    }))
-
-    noncurrent_version_transition = optional(list(object({
-      newer_noncurrent_versions = optional(number)
-      noncurrent_days           = optional(number)
-      storage_class             = string
-    })))
-
-    prefix = optional(string)
-
-    transition = optional(list(object({
-      date          = optional(string)
-      days          = optional(number)
-      storage_class = string
-    })))
   }))
 
-  default = [
-    {
-      id      = "rule-1"
-      enabled = true
-
-      transition = [
-        {
-          days          = 30
-          storage_class = "STANDARD_IA"
-        },
-
-        {
-          days          = 60
-          storage_class = "GLACIER"
-        }
-      ]
-
-      expiration = {
-        days = 90
-      }
-
-      noncurrent_version_transition = []
-
-      filter = {
-        and = {
-          prefix                   = "logs/"
-          object_size_greater_than = 500
-          object_size_less_than    = 64000
-        }
-
-        tag = {
-          key   = "managed-by"
-          value = "Terraform"
-        }
-      }
-    }
-  ]
+  default     = {}
 }
 
 variable "access_log_delivery_policy_source_buckets" {
@@ -335,7 +293,8 @@ variable "allowed_kms_key_arn" {
 
 variable "server_side_encryption_configuration" {
   description = "Map containing server-side encryption configuration."
-  type = object({
+  type = map(object({
+    bucket                = string
     expected_bucket_owner = optional(string)
     rule = object({
       apply_server_side_encryption_by_default = optional(object({
@@ -344,22 +303,20 @@ variable "server_side_encryption_configuration" {
       }))
       bucket_key_enabled = optional(bool)
     })
-  })
+  }))
 
-  default = {
-    rule = {
-      apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
+  default     = {}
 }
 
 variable "analytics_configuration" {
   description = "Map containing bucket analytics configuration."
   type = map(object({
-    name = string
-
+    bucket = string
+    name   = string
+    filter = optional(object({
+      prefix = optional(string)
+      tags   = optional(map(string))
+    }))
     storage_class_analysis = optional(object({
       data_export = object({
         output_schema_version = optional(string)
@@ -373,30 +330,15 @@ variable "analytics_configuration" {
         })
       })
     }))
-
-    filter = optional(object({
-      prefix = optional(string)
-      tags   = optional(map(string))
-    }))
-
   }))
 
-  default = {
-    first = {
-      name = "first"
-
-      filter = {
-        tags = {
-          analyze = "yes"
-        }
-      }
-    }
-  }
+  default     = {}
 }
 
 variable "logging" {
-  description = "Map containing access logging configuration."
-  type = object({
+  description = "Map containing access bucket logging configuration."
+  type = map(object({
+    bucket                = string
     expected_bucket_owner = optional(string)
     target_bucket         = string
     target_prefix         = string
@@ -409,18 +351,23 @@ variable "logging" {
         uri           = optional(string)
       })
     })))
-  })
 
-  default = {
-    target_bucket = "perizer-vpclogsbucket"
-    target_prefix = "log/"
-  }
+    target_object_key_format = optional(object({
+      partitioned_prefix = optional(object({
+        partition_date_source = string
+      }))
+      simple_prefix = optional(map(string))
+    }))
+  }))
+
+  # default = {}
 }
 
 variable "metric_configuration" {
-  description = "Map containing bucket metric configuration."
-  type = list(object({
-    name = string
+  description = "Configuration for aws_s3_bucket_metric resource"
+  type = map(object({
+    bucket = string
+    name   = string
     filter = optional(object({
       access_point = optional(string)
       prefix       = optional(string)
@@ -428,17 +375,14 @@ variable "metric_configuration" {
     }))
   }))
 
-  default = [{
-    name = "metric1"
-
-    filter = {
-      prefix = "/logs"
-    }
-  }, ]
+  # validation {
+  #   condition     = length(var.s3_bucket_metric.name) <= 64
+  #   error_message = "The name must be less than or equal to 64 characters in length."
+  # }
 }
 
 variable "acceleration_status" {
-  description = "(Optional) Sets the accelerate configuration of an existing bucket. Can be 'Enabled' or 'Suspended'."
+  description = "(Optional) Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended."
   type        = string
   default     = null
 }

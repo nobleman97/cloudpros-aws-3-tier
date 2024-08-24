@@ -1,60 +1,18 @@
-# Perizer Terraform Module Template Repo
-This is the base Terraform Module Template Repo used for creating new Terraform modules.
+# Terraform AWS S3 Module
 
-## Benefits of Terraform Module
-- Reusability and Standardization: Use pre-defined infrastructure components for consistent deployments.
-- Consistency and Scalability: Provision infrastructure reliably and scale deployments efficiently.
-- Collaboration and Efficiency: Foster collaboration, code reuse, and best practices.
-- Maintainability and Upgradability: Simplify maintenance and updates of infrastructure configurations.
-- Versioning and Testing: Track changes, validate functionality, and ensure compatibility.
-- Governance and Compliance: Enforce governance and comply with security and industry requirements.
+This Terraform module deploys an AWS S3 resource along with some extra configurations.
 
-## Release Description
-# This is a release description template that should be updated for each release.
+These features of S3 bucket configurations are supported:
 
-# Terraform AzureRM Module - Release X.X.X
-Release Date: YYYY-MM-DD
-
-## Changelog
-Summarize the major changes and updates made in this release. Provide a high-level overview of new features, enhancements, and bug fixes.
-
-## New Features
-- Feature 1: Description of the new feature.
-- Feature 2: Description of the new feature.
-
-## Enhancements
-- Enhancement 1: Description of the enhancement.
-- Enhancement 2: Description of the enhancement.
-
-## Bug Fixes
-- Bug Fix 1: Description of the bug fix.
-- Bug Fix 2: Description of the bug fix.
-
-## Breaking Changes
-- List any changes that might affect the existing infrastructure or configurations. Provide guidance on how users can update their existing deployments to adapt to these changes.
-
-## Compatibility
-- Describe the compatibility of this module with different versions of Terraform, AzureRM provider, and any other dependencies.
-
-## Installation
-- Instructions and dependencies can be found in the updated README.md.
+- Access logging
+- Versioning
+- Lifecycle rules
+- Server-side encryption
+- Object locking
+- Bucket policies
 
 ## Usage Examples
-- Provide updated examples on how to use the module effectively in different scenarios.
-
-## Documentation
-- Updated README with comprehensive module usage instructions and detailed input output descriptions.
-- Linked to Azure documentation for additional context and resources.
-
-## Support
-- For any questions or issues related to this module, please create a JIRA [ticket](https://perizer.atlassian.net/jira/software/c/projects/CLOUD/boards/11).
-
-
-## Versioning
-- [Semantic versioning](https://semver.org/#semantic-versioning-200), Given a version number MAJOR.MINOR.PATCH, increment the:
-    - MAJOR version when you make incompatible API changes
-    - MINOR version when you add functionality in a backward compatible manner
-    - PATCH version when you make backward compatible bug fixes
+Example usages can be found in the [examples folder](./examples/).
 
 ---
 <!-- BEGIN_TF_DOCS -->
@@ -63,16 +21,13 @@ Summarize the major changes and updates made in this release. Provide a high-lev
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | = 5.5.0 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~>3.63.0 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.4.0 |
-| <a name="requirement_time"></a> [time](#requirement\_time) | ~>0.9.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.58.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.58.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.58.0 |
 
 ## Modules
 
@@ -82,41 +37,42 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket_acl.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_acl) | resource |
-| [aws_s3_bucket_analytics_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_analytics_configuration) | resource |
-| [aws_s3_bucket_cors_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_cors_configuration) | resource |
-| [aws_s3_bucket_lifecycle_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_lifecycle_configuration) | resource |
-| [aws_s3_bucket_logging.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_logging) | resource |
-| [aws_s3_bucket_metric.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_metric) | resource |
-| [aws_s3_bucket_ownership_controls.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_ownership_controls) | resource |
-| [aws_s3_bucket_policy.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_policy) | resource |
-| [aws_s3_bucket_public_access_block.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_public_access_block) | resource |
-| [aws_s3_bucket_server_side_encryption_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
-| [aws_s3_bucket_versioning.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_versioning) | resource |
-| [aws_s3_bucket_website_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/resources/s3_bucket_website_configuration) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/caller_identity) | data source |
-| [aws_iam_policy_document.access_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.combined](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.deny_incorrect_encryption_headers](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.deny_incorrect_kms_key_sse](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.deny_insecure_transport](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.deny_unencrypted_object_uploads](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.elb_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.inventory_and_analytics_destination_policy](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.lb_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.require_latest_tls](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.5.0/docs/data-sources/region) | data source |
+| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_accelerate_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_accelerate_configuration) | resource |
+| [aws_s3_bucket_acl.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
+| [aws_s3_bucket_analytics_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_analytics_configuration) | resource |
+| [aws_s3_bucket_lifecycle_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
+| [aws_s3_bucket_logging.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
+| [aws_s3_bucket_metric.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_metric) | resource |
+| [aws_s3_bucket_object_lock_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_object_lock_configuration) | resource |
+| [aws_s3_bucket_ownership_controls.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls) | resource |
+| [aws_s3_bucket_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
+| [aws_s3_bucket_public_access_block.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
+| [aws_s3_bucket_server_side_encryption_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
+| [aws_s3_bucket_versioning.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.access_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.deny_incorrect_encryption_headers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.deny_incorrect_kms_key_sse](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.deny_insecure_transport](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.deny_unencrypted_object_uploads](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.elb_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.inventory_and_analytics_destination_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.lb_log_delivery](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.require_latest_tls](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_acceleration_status"></a> [acceleration\_status](#input\_acceleration\_status) | (Optional) Sets the accelerate configuration of an existing bucket. Can be 'Enabled' or 'Suspended'. | `string` | `null` | no |
 | <a name="input_access_log_delivery_policy_source_accounts"></a> [access\_log\_delivery\_policy\_source\_accounts](#input\_access\_log\_delivery\_policy\_source\_accounts) | (Optional) List of AWS Account IDs should be allowed to deliver access logs to this bucket. | `list(string)` | `[]` | no |
 | <a name="input_access_log_delivery_policy_source_buckets"></a> [access\_log\_delivery\_policy\_source\_buckets](#input\_access\_log\_delivery\_policy\_source\_buckets) | (Optional) List of S3 bucket ARNs which should be allowed to deliver access logs to this bucket. | `list(string)` | `[]` | no |
 | <a name="input_acl"></a> [acl](#input\_acl) | (Optional) The canned ACL to apply. Conflicts with `grant` | `string` | `null` | no |
 | <a name="input_allowed_kms_key_arn"></a> [allowed\_kms\_key\_arn](#input\_allowed\_kms\_key\_arn) | The ARN of KMS key which should be allowed in PutObject | `string` | `null` | no |
-| <a name="input_analytics_configuration"></a> [analytics\_configuration](#input\_analytics\_configuration) | Map containing bucket analytics configuration. | `any` | `{}` | no |
+| <a name="input_analytics_configuration"></a> [analytics\_configuration](#input\_analytics\_configuration) | Map containing bucket analytics configuration. | <pre>map(object({<br>    name = string<br><br>    storage_class_analysis = optional(object({<br>      data_export = object({<br>        output_schema_version = optional(string)<br>        destination = object({<br>          s3_bucket_destination = object({<br>            bucket_arn        = string<br>            bucket_account_id = optional(string)<br>            format            = optional(string)<br>            prefix            = optional(string)<br>          })<br>        })<br>      })<br>    }))<br><br>    filter = optional(object({<br>      prefix = optional(string)<br>      tags   = optional(map(string))<br>    }))<br><br>  }))</pre> | <pre>{<br>  "first": {<br>    "filter": {<br>      "tags": {<br>        "analyze": "yes"<br>      }<br>    },<br>    "name": "first"<br>  }<br>}</pre> | no |
 | <a name="input_analytics_self_source_destination"></a> [analytics\_self\_source\_destination](#input\_analytics\_self\_source\_destination) | Whether or not the analytics source bucket is also the destination bucket. | `bool` | `false` | no |
 | <a name="input_analytics_source_account_id"></a> [analytics\_source\_account\_id](#input\_analytics\_source\_account\_id) | The analytics source account id. | `string` | `null` | no |
 | <a name="input_analytics_source_bucket_arn"></a> [analytics\_source\_bucket\_arn](#input\_analytics\_source\_bucket\_arn) | The analytics source bucket ARN. | `string` | `null` | no |
@@ -134,30 +90,34 @@ No modules.
 | <a name="input_attach_require_latest_tls_policy"></a> [attach\_require\_latest\_tls\_policy](#input\_attach\_require\_latest\_tls\_policy) | Controls if S3 bucket should require the latest version of TLS | `bool` | `false` | no |
 | <a name="input_block_public_acls"></a> [block\_public\_acls](#input\_block\_public\_acls) | Whether Amazon S3 should block public ACLs for this bucket. | `bool` | `true` | no |
 | <a name="input_block_public_policy"></a> [block\_public\_policy](#input\_block\_public\_policy) | Whether Amazon S3 should block public bucket policies for this bucket. | `bool` | `true` | no |
-| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | n/a | `string` | `"demo"` | no |
+| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Name of bucket | `string` | `"demo"` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket. | `string` | `null` | no |
 | <a name="input_control_object_ownership"></a> [control\_object\_ownership](#input\_control\_object\_ownership) | Whether to manage S3 Bucket Ownership Controls on this bucket. | `bool` | `false` | no |
-| <a name="input_cors_rule"></a> [cors\_rule](#input\_cors\_rule) | List of maps containing rules for Cross-Origin Resource Sharing. | `any` | `[]` | no |
 | <a name="input_expected_bucket_owner"></a> [expected\_bucket\_owner](#input\_expected\_bucket\_owner) | The account ID of the expected bucket owner | `string` | `null` | no |
-| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | n/a | `bool` | `false` | no |
+| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Boolean that indicates indicates if all objects should be deleted from the bucket when the bucket is destroyed so that the bucket can be destroyed without error. | `bool` | `false` | no |
 | <a name="input_grant"></a> [grant](#input\_grant) | An ACL policy grant. Conflicts with `acl` | `any` | `[]` | no |
 | <a name="input_ignore_public_acls"></a> [ignore\_public\_acls](#input\_ignore\_public\_acls) | Whether Amazon S3 should ignore public ACLs for this bucket. | `bool` | `true` | no |
 | <a name="input_inventory_self_source_destination"></a> [inventory\_self\_source\_destination](#input\_inventory\_self\_source\_destination) | Whether or not the inventory source bucket is also the destination bucket. | `bool` | `false` | no |
 | <a name="input_inventory_source_account_id"></a> [inventory\_source\_account\_id](#input\_inventory\_source\_account\_id) | The inventory source account id. | `string` | `null` | no |
 | <a name="input_inventory_source_bucket_arn"></a> [inventory\_source\_bucket\_arn](#input\_inventory\_source\_bucket\_arn) | The inventory source bucket ARN. | `string` | `null` | no |
-| <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | `[]` | no |
-| <a name="input_logging"></a> [logging](#input\_logging) | Map containing access bucket logging configuration. | `any` | `{}` | no |
-| <a name="input_metric_configuration"></a> [metric\_configuration](#input\_metric\_configuration) | Map containing bucket metric configuration. | `any` | `[]` | no |
+| <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | <pre>list(object({<br>    id      = string<br>    enabled = bool<br><br>    abort_incomplete_multipart_upload = optional(object({<br>      days_after_initiation = number<br>    }))<br><br>    expiration = optional(object({<br>      date                         = optional(string)<br>      days                         = optional(number)<br>      expired_object_delete_marker = optional(bool)<br>    }))<br><br>    filter = optional(object({<br>      and = optional(object({<br>        object_size_greater_than = optional(number)<br>        object_size_less_than    = optional(number)<br>        prefix                   = optional(string)<br>        tags                     = optional(map(string))<br>      }))<br><br>      object_size_greater_than = optional(number)<br>      object_size_less_than    = optional(number)<br>      prefix                   = optional(string)<br><br>      tag = optional(object({<br>        key   = string<br>        value = string<br>      }))<br><br>    }))<br><br>    noncurrent_version_expiration = optional(object({<br>      newer_noncurrent_versions = optional(number)<br>      noncurrent_days           = optional(number)<br>    }))<br><br>    noncurrent_version_transition = optional(list(object({<br>      newer_noncurrent_versions = optional(number)<br>      noncurrent_days           = optional(number)<br>      storage_class             = string<br>    })))<br><br>    prefix = optional(string)<br><br>    transition = optional(list(object({<br>      date          = optional(string)<br>      days          = optional(number)<br>      storage_class = string<br>    })))<br>  }))</pre> | <pre>[<br>  {<br>    "enabled": true,<br>    "expiration": {<br>      "days": 90<br>    },<br>    "filter": {<br>      "and": {<br>        "object_size_greater_than": 500,<br>        "object_size_less_than": 64000,<br>        "prefix": "logs/"<br>      },<br>      "tag": {<br>        "key": "managed-by",<br>        "value": "Terraform"<br>      }<br>    },<br>    "id": "rule-1",<br>    "noncurrent_version_transition": [],<br>    "transition": [<br>      {<br>        "days": 30,<br>        "storage_class": "STANDARD_IA"<br>      },<br>      {<br>        "days": 60,<br>        "storage_class": "GLACIER"<br>      }<br>    ]<br>  }<br>]</pre> | no |
+| <a name="input_logging"></a> [logging](#input\_logging) | Map containing access logging configuration. | <pre>object({<br>    expected_bucket_owner = optional(string)<br>    target_bucket         = string<br>    target_prefix         = string<br>    target_grant = optional(list(object({<br>      permission = string<br>      grantee = object({<br>        email_address = optional(string)<br>        id            = optional(string)<br>        type          = string<br>        uri           = optional(string)<br>      })<br>    })))<br>  })</pre> | <pre>{<br>  "target_bucket": "perizer-vpclogsbucket",<br>  "target_prefix": "log/"<br>}</pre> | no |
+| <a name="input_metric_configuration"></a> [metric\_configuration](#input\_metric\_configuration) | Map containing bucket metric configuration. | <pre>list(object({<br>    name = string<br>    filter = optional(object({<br>      access_point = optional(string)<br>      prefix       = optional(string)<br>      tags         = optional(map(string))<br>    }))<br>  }))</pre> | <pre>[<br>  {<br>    "filter": {<br>      "prefix": "/logs"<br>    },<br>    "name": "metric1"<br>  }<br>]</pre> | no |
+| <a name="input_object_lock_configuration"></a> [object\_lock\_configuration](#input\_object\_lock\_configuration) | Map containing S3 object locking configuration. | <pre>object({<br><br>    object_lock_enabled = optional(string)<br>    rule = optional(object({<br>      default_retention = object({<br>        days  = optional(number)<br>        mode  = string<br>        years = optional(number)<br>      })<br>    }))<br>    token = optional(string)<br>  })</pre> | `{}` | no |
 | <a name="input_object_lock_enabled"></a> [object\_lock\_enabled](#input\_object\_lock\_enabled) | Whether S3 bucket should have an Object Lock configuration enabled. | `bool` | `false` | no |
 | <a name="input_object_ownership"></a> [object\_ownership](#input\_object\_ownership) | Object ownership. Valid values: BucketOwnerEnforced, BucketOwnerPreferred or ObjectWriter. 'BucketOwnerEnforced': ACLs are disabled, and the bucket owner automatically owns and has full control over every object in the bucket. 'BucketOwnerPreferred': Objects uploaded to the bucket change ownership to the bucket owner if the objects are uploaded with the bucket-owner-full-control canned ACL. 'ObjectWriter': The uploading account will own the object if the object is uploaded with the bucket-owner-full-control canned ACL. | `string` | `"BucketOwnerEnforced"` | no |
 | <a name="input_policy"></a> [policy](#input\_policy) | (Optional) A valid bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. | `string` | `null` | no |
 | <a name="input_restrict_public_buckets"></a> [restrict\_public\_buckets](#input\_restrict\_public\_buckets) | Whether Amazon S3 should restrict public bucket policies for this bucket. | `bool` | `true` | no |
-| <a name="input_server_side_encryption_configuration"></a> [server\_side\_encryption\_configuration](#input\_server\_side\_encryption\_configuration) | Map containing server-side encryption configuration. | `any` | `{}` | no |
+| <a name="input_server_side_encryption_configuration"></a> [server\_side\_encryption\_configuration](#input\_server\_side\_encryption\_configuration) | Map containing server-side encryption configuration. | <pre>object({<br>    expected_bucket_owner = optional(string)<br>    rule = object({<br>      apply_server_side_encryption_by_default = optional(object({<br>        sse_algorithm     = string<br>        kms_master_key_id = optional(string)<br>      }))<br>      bucket_key_enabled = optional(bool)<br>    })<br>  })</pre> | <pre>{<br>  "rule": {<br>    "apply_server_side_encryption_by_default": {<br>      "sse_algorithm": "AES256"<br>    }<br>  }<br>}</pre> | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the bucket. | `map(string)` | `{}` | no |
 | <a name="input_versioning"></a> [versioning](#input\_versioning) | Map containing versioning configuration. | `map(string)` | `{}` | no |
-| <a name="input_website"></a> [website](#input\_website) | Map containing static web-site hosting or redirect configuration. | `any` | `{}` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_bucket"></a> [bucket](#output\_bucket) | outputs.tf |
 <!-- END_TF_DOCS -->
+
+## Related Documentation
+- [Official S3 Terraform Module](https://github.com/terraform-aws-modules/terraform-aws-s3-bucket/tree/master)
