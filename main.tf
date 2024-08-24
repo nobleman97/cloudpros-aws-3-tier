@@ -1,3 +1,8 @@
+
+#########################
+# Networking
+#########################
+
 module "network" {
   source = "./modules/vpc"
 
@@ -268,6 +273,140 @@ resource "aws_cloudwatch_metric_alarm" "this" {
 
 
 
+#########################
+# S3 Bucket
+#########################
+resource "aws_iam_role" "this" {
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
 
+data "aws_iam_policy_document" "bucket_policy" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.this.arn]
+    }
+
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${local.bucket_name}",
+    ]
+  }
+}
+
+module "s3_bucket" {
+  # source  = "terraform-aws-modules/s3-bucket/aws"
+  # version = "4.1.2"
+  source = "./modules/s3_bucket/"
+
+  bucket = local.bucket_name
+
+  force_destroy       = true
+  acceleration_status = "Suspended"
+  request_payer       = "BucketOwner"
+
+  tags = {
+    Owner = "David"
+  }
+
+  object_lock_enabled = true
+  object_lock_configuration = {
+    rule = {
+      default_retention = {
+        mode = "GOVERNANCE"
+        days = 1
+      }
+    }
+  }
+
+  # Bucket policies
+  attach_policy                            = true
+  policy                                   = data.aws_iam_policy_document.bucket_policy.json
+  attach_deny_insecure_transport_policy    = true
+  attach_require_latest_tls_policy         = true
+  attach_deny_incorrect_encryption_headers = true
+  attach_deny_incorrect_kms_key_sse        = true
+  # allowed_kms_key_arn                      = aws_kms_key.objects.arn
+  attach_deny_unencrypted_object_uploads   = false
+
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  expected_bucket_owner = data.aws_caller_identity.current.account_id
+
+  versioning = {
+    status     = true
+    mfa_delete = false
+  }  
+
+  lifecycle_rule = [
+    {
+      id                                     = "log1"
+      enabled                                = true
+      abort_incomplete_multipart_upload_days = 7
+
+      noncurrent_version_transition = [
+        {
+          days          = 30
+          storage_class = "STANDARD_IA"
+        },
+        {
+          days          = 60
+          storage_class = "ONEZONE_IA"
+        },
+        {
+          days          = 90
+          storage_class = "GLACIER"
+        },
+      ]
+
+      noncurrent_version_expiration = {
+        days = 300
+      }
+    },
+    {
+      id      = "log2"
+      enabled = true
+
+      filter = {
+        prefix                   = "log1/"
+        object_size_greater_than = 200000
+        object_size_less_than    = 500000
+        tags = {
+          some    = "value"
+          another = "value2"
+        }
+      }
+
+      noncurrent_version_transition = [
+        {
+          days          = 30
+          storage_class = "STANDARD_IA"
+        },
+      ]
+
+      noncurrent_version_expiration = {
+        days = 300
+      }
+    }
+  ]
+}
 
 

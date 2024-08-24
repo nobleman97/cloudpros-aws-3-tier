@@ -1,5 +1,7 @@
 locals {
 
+  bucket_name = "cloudpros"
+
   ######  Subnets  #####
   public_subnets = [
     for subnet in module.network.public_subnets :
