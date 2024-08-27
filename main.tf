@@ -328,3 +328,17 @@ module "s3_bucket" {
 }
 
 
+##############################
+# Route 53
+##############################
+resource "aws_route53_record" "new_app" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "cloudy.shakazu.com"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.this[local.albs[0].name].dns_name  # DNS name of the ALB
+    zone_id                = aws_lb.this[local.albs[0].name].zone_id   # Hosted zone ID for the ALB
+    evaluate_target_health = true
+  }
+}

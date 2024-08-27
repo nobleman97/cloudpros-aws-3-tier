@@ -8,7 +8,6 @@ data "aws_ssm_parameter" "rds_username" {
   name = "/david/cloudpros/username"
 }
 
-
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
     principals {
@@ -24,4 +23,8 @@ data "aws_iam_policy_document" "bucket_policy" {
       "arn:aws:s3:::${local.bucket_name}",
     ]
   }
+}
+
+data "aws_route53_zone" "main" {
+  name = "shakazu.com"  
 }
