@@ -166,28 +166,28 @@ variable "albs" {
 variable "rds_config" {
   description = "An object of configurations for the RDS"
   type = object({
-    subnet_group_name      = string
-    allocated_storage      = number
-    engine                 = string
-    engine_version         = string
-    instance_class         = string
-    db_name                = string
-    multi_az               = bool
-    skip_final_snapshot    = bool
+    subnet_group_name   = string
+    allocated_storage   = number
+    engine              = string
+    engine_version      = string
+    instance_class      = string
+    db_name             = string
+    multi_az            = bool
+    skip_final_snapshot = bool
   })
 }
 
 variable "cloud_watch_alarms" {
   description = ""
   type = map(object({
-    alarm_name = string
+    alarm_name          = string
     comparison_operator = string
-    evaluation_periods = number
-    metric_name = string
-    namespace  = string
-    period  = number
-    statistic = string
-    threshold = number
+    evaluation_periods  = number
+    metric_name         = string
+    namespace           = string
+    period              = number
+    statistic           = string
+    threshold           = number
 
     scaling_policy_id = number
   }))
@@ -197,9 +197,9 @@ variable "cloud_watch_alarms" {
 variable "s3_config" {
   description = ""
   type = object({
-    force_destroy = bool
+    force_destroy       = bool
     acceleration_status = string
-    request_payer = string
+    request_payer       = string
 
     tags = optional(map(string))
 
@@ -213,35 +213,35 @@ variable "s3_config" {
       }))
     }))
 
-    attach_policy =  bool
-    attach_deny_insecure_transport_policy = bool
-    attach_require_latest_tls_policy = bool
+    attach_policy                            = bool
+    attach_deny_insecure_transport_policy    = bool
+    attach_require_latest_tls_policy         = bool
     attach_deny_incorrect_encryption_headers = bool
-    attach_deny_incorrect_kms_key_sse = bool
-    attach_deny_unencrypted_object_uploads = bool
-    
+    attach_deny_incorrect_kms_key_sse        = bool
+    attach_deny_unencrypted_object_uploads   = bool
+
     control_object_ownership = bool
-    object_ownership =  string
+    object_ownership         = string
 
     versioning = map(string)
 
     lifecycle_rule = list(object({
-      id = string
-      enabled = bool
+      id                                     = string
+      enabled                                = bool
       abort_incomplete_multipart_upload_days = optional(number)
 
       noncurrent_version_transition = list(object({
-        days = number
+        days          = number
         storage_class = string
       }))
 
       noncurrent_version_expiration = map(string)
 
       filter = optional(object({
-        prefix = optional(string)
+        prefix                   = optional(string)
         object_size_greater_than = optional(number)
-        object_size_less_than =  optional(number)
-        tags =  optional(map(string))
+        object_size_less_than    = optional(number)
+        tags                     = optional(map(string))
       }), {})
 
     }))
