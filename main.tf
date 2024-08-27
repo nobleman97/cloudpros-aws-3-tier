@@ -1,8 +1,6 @@
-
 #########################
 # Networking
 #########################
-
 module "network" {
   source = "./modules/vpc"
 
@@ -66,7 +64,6 @@ resource "aws_security_group" "rds_sg" {
   }
 }
 
-
 ######################
 # Load Balancer
 ######################
@@ -84,8 +81,6 @@ resource "aws_lb" "this" {
   security_groups    = [local.alb_security_group_id]
   subnets            = local.public_subnets
 }
-
-
 
 # Target Group
 resource "aws_lb_target_group" "this" {
@@ -220,12 +215,9 @@ resource "aws_autoscaling_policy" "this" {
   autoscaling_group_name = aws_autoscaling_group.this[each.value.auto_scaling_group_key].name
 }
 
-
-# ############################
-# # RDS DB
-# ############################
-
-# # RDS Subnet Group
+############################
+# RDS DB
+############################
 resource "aws_db_subnet_group" "this" {
   name       = var.rds_config.subnet_group_name
   subnet_ids = local.db_subnets
@@ -233,17 +225,16 @@ resource "aws_db_subnet_group" "this" {
 
 # # RDS Instance
 resource "aws_db_instance" "this" {
+  allocated_storage   = var.rds_config.allocated_storage
+  engine              = var.rds_config.engine
+  engine_version      = var.rds_config.engine_version
+  instance_class      = var.rds_config.instance_class
+  db_name             = var.rds_config.db_name
+  multi_az            = var.rds_config.multi_az
+  skip_final_snapshot = var.rds_config.skip_final_snapshot
 
-  allocated_storage      = var.rds_config.allocated_storage
-  engine                 = var.rds_config.engine
-  engine_version         = var.rds_config.engine_version
-  instance_class         = var.rds_config.instance_class
-  db_name                = var.rds_config.db_name
-  multi_az               = var.rds_config.multi_az
-  skip_final_snapshot    = var.rds_config.skip_final_snapshot
-
-  username               = data.aws_ssm_parameter.rds_username.value
-  password               = data.aws_ssm_parameter.rds_pwd.value
+  username = data.aws_ssm_parameter.rds_username.value
+  password = data.aws_ssm_parameter.rds_pwd.value
 
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
@@ -252,7 +243,6 @@ resource "aws_db_instance" "this" {
 ##########################
 # Cloud Watch
 ##########################
-
 resource "aws_cloudwatch_metric_alarm" "this" {
   for_each = var.cloud_watch_alarms
 
@@ -327,7 +317,6 @@ module "s3_bucket" {
   lifecycle_rule = var.s3_config.lifecycle_rule
 }
 
-
 ##############################
 # Route 53
 ##############################
@@ -337,8 +326,8 @@ resource "aws_route53_record" "new_app" {
   type    = "A"
 
   alias {
-    name                   = aws_lb.this[local.albs[0].name].dns_name  # DNS name of the ALB
-    zone_id                = aws_lb.this[local.albs[0].name].zone_id   # Hosted zone ID for the ALB
+    name                   = aws_lb.this[local.albs[0].name].dns_name # DNS name of the ALB
+    zone_id                = aws_lb.this[local.albs[0].name].zone_id  # Hosted zone ID for the ALB
     evaluate_target_health = true
   }
 }

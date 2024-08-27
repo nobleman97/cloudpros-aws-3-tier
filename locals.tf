@@ -120,13 +120,13 @@ locals {
   ])
 
   asg_keys = [
-    for auto_scaling_group in local.auto_scaling_groups:
+    for auto_scaling_group in local.auto_scaling_groups :
     auto_scaling_group.key
   ]
 
   aws_autoscaling_policy_keys = [
-    for auto_scaling_policy in local.auto_scaling_policies:
-    auto_scaling_policy.key  
+    for auto_scaling_policy in local.auto_scaling_policies :
+    auto_scaling_policy.key
   ]
 
   alb_security_group_id = module.security_group["alb-sg"].security_groups.id
@@ -140,7 +140,7 @@ output "aws_autoscaling_policy_keys" {
 
 output "security_groups" {
   value = [
-    for sg in module.security_group:
+    for sg in module.security_group :
     sg.security_groups.id
   ]
 }

@@ -102,7 +102,7 @@ vpc_subnets = {
 }
 
 security_groups = {
-  
+
   "alb-sg" = {
     sg_name        = "alb-sg"
     sg_description = "Security group for Application Load Balancer"
@@ -222,14 +222,14 @@ albs = [
 ]
 
 rds_config = {
-  subnet_group_name      = "rds-subnet-group"
-  allocated_storage      = 20
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t3.micro"
-  db_name                = "appdb"
-  multi_az               = true
-  skip_final_snapshot    = true
+  subnet_group_name   = "rds-subnet-group"
+  allocated_storage   = 20
+  engine              = "mysql"
+  engine_version      = "8.0"
+  instance_class      = "db.t3.micro"
+  db_name             = "appdb"
+  multi_az            = true
+  skip_final_snapshot = true
 }
 
 cloud_watch_alarms = {
@@ -259,7 +259,7 @@ cloud_watch_alarms = {
 }
 
 s3_config = {
-  force_destroy = true
+  force_destroy       = true
   acceleration_status = "Suspended"
   request_payer       = "BucketOwner"
 
@@ -290,7 +290,7 @@ s3_config = {
   versioning = {
     status     = true
     mfa_delete = false
-  }  
+  }
 
   lifecycle_rule = [
     {
@@ -319,7 +319,7 @@ s3_config = {
 
       filter = {
         tags = {
-          Owner    = "David"
+          Owner = "David"
         }
       }
     },
