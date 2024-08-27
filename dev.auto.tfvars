@@ -102,6 +102,7 @@ vpc_subnets = {
 }
 
 security_groups = {
+  
   "alb-sg" = {
     sg_name        = "alb-sg"
     sg_description = "Security group for Application Load Balancer"

@@ -36,7 +36,7 @@ resource "aws_security_group" "app_sg" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [module.security_group["alb-sg"].security_groups.id]
+    security_groups = [local.alb_security_group_id]
   }
 
   egress {
@@ -81,9 +81,11 @@ resource "aws_lb" "this" {
   name               = each.value.name
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [module.security_group["alb-sg"].security_groups.id]
+  security_groups    = [local.alb_security_group_id]
   subnets            = local.public_subnets
 }
+
+
 
 # Target Group
 resource "aws_lb_target_group" "this" {
@@ -148,7 +150,6 @@ resource "aws_lb_listener_rule" "this" {
     }
   }
 }
-
 
 # ##########################
 # # Auto-scaling Groups

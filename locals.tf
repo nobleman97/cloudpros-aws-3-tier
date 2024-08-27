@@ -129,7 +129,7 @@ locals {
     auto_scaling_policy.key  
   ]
 
-  
+  alb_security_group_id = module.security_group["alb-sg"].security_groups.id
 }
 
 
@@ -142,6 +142,5 @@ output "security_groups" {
   value = [
     for sg in module.security_group:
     sg.security_groups.id
-    
   ]
 }
