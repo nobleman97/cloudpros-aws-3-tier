@@ -192,3 +192,59 @@ variable "cloud_watch_alarms" {
     scaling_policy_id = number
   }))
 }
+
+
+variable "s3_config" {
+  description = ""
+  type = object({
+    force_destroy = bool
+    acceleration_status = string
+    request_payer = string
+
+    tags = optional(map(string))
+
+    object_lock_enabled = bool
+    object_lock_configuration = optional(object({
+      rule = optional(object({
+        default_retention = object({
+          mode = string
+          days = number
+        })
+      }))
+    }))
+
+    attach_policy =  bool
+    attach_deny_insecure_transport_policy = bool
+    attach_require_latest_tls_policy = bool
+    attach_deny_incorrect_encryption_headers = bool
+    attach_deny_incorrect_kms_key_sse = bool
+    attach_deny_unencrypted_object_uploads = bool
+    
+    control_object_ownership = bool
+    object_ownership =  string
+
+    versioning = map(string)
+
+    lifecycle_rule = list(object({
+      id = string
+      enabled = bool
+      abort_incomplete_multipart_upload_days = optional(number)
+
+      noncurrent_version_transition = list(object({
+        days = number
+        storage_class = string
+      }))
+
+      noncurrent_version_expiration = map(string)
+
+      filter = optional(object({
+        prefix = optional(string)
+        object_size_greater_than = optional(number)
+        object_size_less_than =  optional(number)
+        tags =  optional(map(string))
+      }), {})
+
+    }))
+
+  })
+}

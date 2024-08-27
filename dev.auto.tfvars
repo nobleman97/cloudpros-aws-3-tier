@@ -257,3 +257,95 @@ cloud_watch_alarms = {
   }
 }
 
+s3_config = {
+  force_destroy = true
+  acceleration_status = "Suspended"
+  request_payer       = "BucketOwner"
+
+  tags = {
+    Owner = "David"
+  }
+
+  object_lock_enabled = true
+  object_lock_configuration = {
+    rule = {
+      default_retention = {
+        mode = "GOVERNANCE"
+        days = 1
+      }
+    }
+  }
+
+  attach_policy                            = true
+  attach_deny_insecure_transport_policy    = true
+  attach_require_latest_tls_policy         = true
+  attach_deny_incorrect_encryption_headers = true
+  attach_deny_incorrect_kms_key_sse        = true
+  attach_deny_unencrypted_object_uploads   = false
+
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  versioning = {
+    status     = true
+    mfa_delete = false
+  }  
+
+  lifecycle_rule = [
+    {
+      id                                     = "log1"
+      enabled                                = true
+      abort_incomplete_multipart_upload_days = 7
+
+      noncurrent_version_transition = [
+        {
+          days          = 30
+          storage_class = "STANDARD_IA"
+        },
+        {
+          days          = 60
+          storage_class = "ONEZONE_IA"
+        },
+        {
+          days          = 90
+          storage_class = "GLACIER"
+        },
+      ]
+
+      noncurrent_version_expiration = {
+        days = 300
+      }
+
+      filter = {
+        tags = {
+          Owner    = "David"
+        }
+      }
+    },
+    {
+      id      = "log2"
+      enabled = true
+
+      filter = {
+        prefix                   = "log1/"
+        object_size_greater_than = 200000
+        object_size_less_than    = 500000
+        tags = {
+          some    = "value"
+          another = "value2"
+        }
+      }
+
+      noncurrent_version_transition = [
+        {
+          days          = 30
+          storage_class = "STANDARD_IA"
+        },
+      ]
+
+      noncurrent_version_expiration = {
+        days = 300
+      }
+    }
+  ]
+}

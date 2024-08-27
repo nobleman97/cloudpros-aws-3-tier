@@ -271,8 +271,6 @@ resource "aws_cloudwatch_metric_alarm" "this" {
   alarm_actions = [aws_autoscaling_policy.this[local.aws_autoscaling_policy_keys[each.value.scaling_policy_id]].arn]
 }
 
-
-
 #########################
 # S3 Bucket
 #########################
@@ -294,119 +292,38 @@ resource "aws_iam_role" "this" {
 EOF
 }
 
-data "aws_iam_policy_document" "bucket_policy" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = [aws_iam_role.this.arn]
-    }
-
-    actions = [
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${local.bucket_name}",
-    ]
-  }
-}
-
 module "s3_bucket" {
-  # source  = "terraform-aws-modules/s3-bucket/aws"
-  # version = "4.1.2"
   source = "./modules/s3_bucket/"
 
   bucket = local.bucket_name
 
-  force_destroy       = true
-  acceleration_status = "Suspended"
-  request_payer       = "BucketOwner"
+  force_destroy       = var.s3_config.force_destroy
+  acceleration_status = var.s3_config.acceleration_status
+  request_payer       = var.s3_config.request_payer
 
-  tags = {
-    Owner = "David"
-  }
+  tags = var.s3_config.tags
 
-  object_lock_enabled = true
-  object_lock_configuration = {
-    rule = {
-      default_retention = {
-        mode = "GOVERNANCE"
-        days = 1
-      }
-    }
-  }
+  object_lock_enabled = var.s3_config.object_lock_enabled
+
+  object_lock_configuration = var.s3_config.object_lock_configuration
 
   # Bucket policies
-  attach_policy                            = true
+  attach_policy                            = var.s3_config.attach_policy
   policy                                   = data.aws_iam_policy_document.bucket_policy.json
-  attach_deny_insecure_transport_policy    = true
-  attach_require_latest_tls_policy         = true
-  attach_deny_incorrect_encryption_headers = true
-  attach_deny_incorrect_kms_key_sse        = true
-  # allowed_kms_key_arn                      = aws_kms_key.objects.arn
-  attach_deny_unencrypted_object_uploads   = false
+  attach_deny_insecure_transport_policy    = var.s3_config.attach_deny_insecure_transport_policy
+  attach_require_latest_tls_policy         = var.s3_config.attach_require_latest_tls_policy
+  attach_deny_incorrect_encryption_headers = var.s3_config.attach_deny_incorrect_encryption_headers
+  attach_deny_incorrect_kms_key_sse        = var.s3_config.attach_deny_incorrect_kms_key_sse
+  attach_deny_unencrypted_object_uploads   = var.s3_config.attach_deny_unencrypted_object_uploads
 
-  control_object_ownership = true
-  object_ownership         = "BucketOwnerPreferred"
+  control_object_ownership = var.s3_config.control_object_ownership
+  object_ownership         = var.s3_config.object_ownership
 
   expected_bucket_owner = data.aws_caller_identity.current.account_id
 
-  versioning = {
-    status     = true
-    mfa_delete = false
-  }  
+  versioning = var.s3_config.versioning
 
-  lifecycle_rule = [
-    {
-      id                                     = "log1"
-      enabled                                = true
-      abort_incomplete_multipart_upload_days = 7
-
-      noncurrent_version_transition = [
-        {
-          days          = 30
-          storage_class = "STANDARD_IA"
-        },
-        {
-          days          = 60
-          storage_class = "ONEZONE_IA"
-        },
-        {
-          days          = 90
-          storage_class = "GLACIER"
-        },
-      ]
-
-      noncurrent_version_expiration = {
-        days = 300
-      }
-    },
-    {
-      id      = "log2"
-      enabled = true
-
-      filter = {
-        prefix                   = "log1/"
-        object_size_greater_than = 200000
-        object_size_less_than    = 500000
-        tags = {
-          some    = "value"
-          another = "value2"
-        }
-      }
-
-      noncurrent_version_transition = [
-        {
-          days          = 30
-          storage_class = "STANDARD_IA"
-        },
-      ]
-
-      noncurrent_version_expiration = {
-        days = 300
-      }
-    }
-  ]
+  lifecycle_rule = var.s3_config.lifecycle_rule
 }
 
 
